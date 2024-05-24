@@ -35,6 +35,7 @@ vecTruncated=vec[-startingLoop:]
 NLags=int(np.ceil(len(vecTruncated)*5/6))
 eps=1e-3
 lagVal=0
+same=False
 with warnings.catch_warnings():
     warnings.filterwarnings("error")
     try:
