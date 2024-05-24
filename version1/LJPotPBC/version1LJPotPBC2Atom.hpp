@@ -177,7 +177,7 @@ public:
 
 class version1dLJPot2Atom {
 public:
-    version1dLJPot2Atom(int rowNum, double temperature, int cellNum,
+    version1dLJPot2Atom(int rowNum, double temperature, unsigned long long cellNum,
                         const std::shared_ptr<potentialFunction> &funcPtr) {
 
         this->rowNum = rowNum;
@@ -208,16 +208,7 @@ public:
 
 
 
-    ///
-    /// @param lag decorrelation length
-    /// @param loopTotal total mc steps
-    /// @param equilibrium whether equilibrium has reached
-    /// @param same whether all values of potential are the same
-    /// @param xALast last positions of atom A
-    /// @param xBLast last positions of atom B
-    /// @param LLast last value of total length
-    void readEqMc(int &lag, int &loopTotal, bool &equilibrium, bool &same, std::vector<double> &xALast,
-                  std::vector<double> &xBLast, double &LLast);
+
 
 public:
 
@@ -277,25 +268,55 @@ public:
     /// @param xBInit initial positions of B
     /// @param LInit
     void initPositionsEquiDistance(arma::dcolvec &xAInit, arma::dcolvec &xBInit, double &LInit);
+
+    ///
+    /// @param lag decorrelation length
+    /// @param loopTotal total mc steps
+    /// @param equilibrium whether equilibrium has reached
+    /// @param same whether all values of potential are the same
+    /// @param xALast last positions of atom A
+    /// @param xBLast last positions of atom B
+    /// @param LLast last value of total length
+    void readEqMc(unsigned long long &lag, unsigned long long &loopTotal, bool &equilibrium, bool &same, arma::dcolvec &xALast,
+                  arma::dcolvec &xBLast, double &LLast);
+
+
+
+
+    ///
+    /// @param lag decorrelation length
+    /// @param loopEq total loop numbers in reaching equilibrium
+    /// @param xA_init xA from readEqMc
+    /// @param xB_init xB from readEqMc
+    /// @param LInit L from readEqMc
+    void executionMCAfterEq(const unsigned long long &lag, const unsigned long long &loopEq, const arma::dcolvec &xA_init,
+                            const arma::dcolvec &xB_init, const double &LInit);
+
+
 public:
     double T;// temperature
     double beta;
-    int moveNumInOneFlush = 3000;// flush the results to python every moveNumInOneFlush iterations
-    int flushMaxNum = 7000;
-    int dataNumTotal = 1000;
+//    int moveNumInOneFlush = 3000;// flush the results to python every moveNumInOneFlush iterations
+//    int flushMaxNum = 7000;
+    unsigned long long loopMax=3000*9000;//max number of loop to reach equilibrium
+    unsigned long  long loopToWrite=3000*4000;
+    unsigned long long dataNumTotal = 2000;
+    unsigned long long dataNumInEq=0;
     double h;// step size
-    int N;//number of unit cells
+    unsigned long long N;//number of unit cells
 
-    double lastFileNum = 0;
+//    double lastFileNum = 0;
     std::shared_ptr<potentialFunction> potFuncPtr;
     double stddev;
     int rowNum;
-    int nCounterStart=-1;
+    unsigned long long nEqCounterStart=0;// loop number when equilibrium is reached
 
+    unsigned long long writeInterval=100000000;
 };
 
 
+void save_array_to_pickle(const std::unique_ptr<double[]>& ptr, std::size_t size, const std::string& filename);
 
-
-
+///to msgpack bin file
+void save_to_bin_file(const std::unique_ptr<double[]>& data, unsigned long long size, const std::string& filename);
 #endif //T_PHASE_NO_GRAD_VERSION1LJPOTPBC2ATOM_HPP

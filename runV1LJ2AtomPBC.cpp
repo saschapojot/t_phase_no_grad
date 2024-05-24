@@ -24,8 +24,23 @@ int main(int argc, char *argv[]) {
 
 //    std::cout<<"r0="<<r0<<std::endl;
     auto LJFunc=LJPotPBC(alpha1,alpha2,beta1,beta2,p1,p2,q1,q2,r0);
-    int cellNum = 10;
+    unsigned long long cellNum = 10;
     std::cout.precision(11);
     auto v1Obj=version1dLJPot2Atom(rowNum,T,cellNum,std::make_shared<LJPotPBC>(alpha1,alpha2,beta1,beta2,p1,p2,q1,q2,r0));
+
+    unsigned long long lag=0;
+    unsigned long long totalLoopEq=0;
+    bool eq=false;
+    bool same= false;
+    arma::dcolvec last_xA;
+    arma::dcolvec last_xB;
+    double last_L;
+    v1Obj.readEqMc(lag,totalLoopEq,eq,same,last_xA,last_xB,last_L);
+
+    if(!same and lag>0 and eq){
+        v1Obj.executionMCAfterEq(lag,totalLoopEq,last_xA,last_xB,last_L);
+    }
+
+    return 0;
 
 }
