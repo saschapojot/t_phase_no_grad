@@ -28,7 +28,7 @@ with open(pklFile,"rb") as fptr:
     vec=np.array(pickle.load(fptr))
 
 
-startingLoop=3000*2000
+startingLoop=3000*20000
 
 vecTruncated=vec[-startingLoop:]
 

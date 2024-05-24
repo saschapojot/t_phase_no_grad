@@ -298,8 +298,8 @@ public:
     double beta;
 //    int moveNumInOneFlush = 3000;// flush the results to python every moveNumInOneFlush iterations
 //    int flushMaxNum = 7000;
-    unsigned long long loopMax=3000*15000;//max number of loop to reach equilibrium
-    unsigned long  long loopToWrite=3000*4000;
+    unsigned long long loopMax=3000*80000;//max number of loop to reach equilibrium
+    unsigned long  long loopToWrite=3000*20000;
     unsigned long long dataNumTotal = 2000;
     unsigned long long dataNumInEq=0;
     double h;// step size
