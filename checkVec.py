@@ -41,7 +41,7 @@ same=False
 with warnings.catch_warnings():
     warnings.filterwarnings("error")
     try:
-        acfOfVec=sm.tsa.acf(vecTruncated)
+        acfOfVec=sm.tsa.acf(vecTruncated,nlags=NLags)
     except Warning as w:
         same=True
 
