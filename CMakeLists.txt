@@ -20,7 +20,7 @@ include_directories(${Python3_INCLUDE_DIRS})
 
 add_executable(runV1LJ2AtomPBC runV1LJ2AtomPBC.cpp version1/LJPotPBC/version1LJPotPBC2Atom.cpp)
 
-
+add_executable(main main.cpp version1/LJPotPBC/version1LJPotPBC2Atom.cpp)
 
 
 
@@ -56,6 +56,7 @@ endif()
 
 file(GLOB LIBS_SO "/home/polya/cppLocal/armadillo/lib/*.so")
 target_link_libraries(runV1LJ2AtomPBC ${LIBS_SO})
+target_link_libraries(main ${LIBS_SO})
 
 
 
@@ -71,4 +72,9 @@ target_link_libraries(runV1LJ2AtomPBC Boost::json)
 target_link_libraries(runV1LJ2AtomPBC Boost::python)
 target_link_libraries(runV1LJ2AtomPBC ${Python3_LIBRARIES})
 
+target_link_libraries(main Boost::serialization)
+target_link_libraries(main Boost::filesystem)
+target_link_libraries(main Boost::json)
+target_link_libraries(main Boost::python)
+target_link_libraries(main ${Python3_LIBRARIES})
 

@@ -190,13 +190,15 @@ public:
 
         //estimate step size
 
-        double rEst=funcPtr->r0*1.1;
 
-//        std::cout<<"rEst="<<rEst<<std::endl;
-        double dValEst=0.6;
+        double rEst=funcPtr->r0;
+
+        std::cout<<"rEst="<<rEst<<std::endl;
+        double dValEst=2;
 
         double stepSize=dValEst*T/(std::abs(funcPtr->dVEst(rEst,cellNum)));
-        this->h=stepSize;
+        this->h=0.005;//stepSize;
+
 
         std::cout<<"h="<<h<<std::endl;
         this->stddev =h;
@@ -298,8 +300,10 @@ public:
     double beta;
 //    int moveNumInOneFlush = 3000;// flush the results to python every moveNumInOneFlush iterations
 //    int flushMaxNum = 7000;
+
     unsigned long long loopMax=3000*200000;//max number of loop to reach equilibrium
     unsigned long  long loopToWrite=3000*20000;
+
     unsigned long long dataNumTotal = 2000;
     unsigned long long dataNumInEq=0;
     double h;// step size
