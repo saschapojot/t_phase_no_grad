@@ -28,12 +28,12 @@ with open(pklFile,"rb") as fptr:
     vec=np.array(pickle.load(fptr))
 
 
-startingLoop=3000*20000
+startingLoop=3000*30000
 
 vecTruncated=vec[-startingLoop:]
 
-NLags=int(np.ceil(len(vecTruncated)*5/6))
-eps=1e-3
+NLags=int(np.ceil(len(vecTruncated)*7/8))
+eps=5*1e-2
 lagVal=0
 same=False
 with warnings.catch_warnings():
@@ -48,10 +48,12 @@ if same==True:
     print(sigStop+" same")
     exit()
 
+
+
 else:
     if np.min(np.abs(acfOfVec))>eps:
         print("high correlation")
-        # print(np.min(np.abs(acfOfVec)))
+        print(np.min(np.abs(acfOfVec)))
 
         print(sigContinue)
         exit()
