@@ -315,7 +315,7 @@ public:
     int rowNum;
     unsigned long long nEqCounterStart=0;// loop number when equilibrium is reached
 
-    unsigned long long writeInterval=100000000;
+    unsigned long long writeInterval=10000000;
 };
 
 
