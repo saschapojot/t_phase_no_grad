@@ -28,14 +28,14 @@ with open(pklFile,"rb") as fptr:
     vec=np.array(pickle.load(fptr))
 
 
-startingLoop=3000*30000
+startingLoop=int(1/3*len(vec))
 
-vecTruncated=vec[-startingLoop:]
+vecTruncated=vec[startingLoop:]
 
 
 NLags=int(np.ceil(len(vecTruncated)*7/8))
 
-eps=5*1e-2
+eps=1e-3
 lagVal=0
 same=False
 with warnings.catch_warnings():
@@ -74,7 +74,7 @@ else:
         print("len(selectedFromPart0)="+str(len(selectedFromPart0)))
         print("len(selectedFromPart1)="+str(len(selectedFromPart1)))
         msg="lag="+str(lagVal)+"\n"+"K-S statistic: "+str(result.statistic)+"\n"+"P-value: "+str(result.pvalue)+"\n"\
-            +"numDataPoints="+str(numDataPoints)+"\n"+"nCounterStart="+str(len(vec)-startingLoop)+"\n"
+            +"numDataPoints="+str(numDataPoints)+"\n"+"nCounterStart="+str(startingLoop)+"\n"
         if result.pvalue>0.1:
             print(sigEq)
             print(msg)

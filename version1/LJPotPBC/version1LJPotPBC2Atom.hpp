@@ -58,7 +58,7 @@ public:
 
     }//end of constructor
     virtual double operator()(const arma::dcolvec &xA, const arma::dcolvec &xB, const double &L) const = 0;
-    virtual double dVEst(const double &r, const int &N)const = 0;
+    virtual double dVEst(const double &r, const unsigned long long &N)const = 0;
     virtual ~ potentialFunction() {};
 
 public:
@@ -155,7 +155,7 @@ public:
         +4*std::pow(r,3);
     }
 
-    double dVEst(const double &r, const int &N)const{
+    double dVEst(const double &r, const unsigned long long &N)const{
         double val=static_cast<double>(N)*(dV1(r)+ dV2(r));
         return val;
 
@@ -194,10 +194,10 @@ public:
         double rEst=funcPtr->r0;
 
         std::cout<<"rEst="<<rEst<<std::endl;
-        double dValEst=2;
+        double dValEst=0.5;
 
         double stepSize=dValEst*T/(std::abs(funcPtr->dVEst(rEst,cellNum)));
-        this->h=0.005;//stepSize;
+        this->h=stepSize;
 
 
         std::cout<<"h="<<h<<std::endl;
@@ -301,8 +301,8 @@ public:
 //    int moveNumInOneFlush = 3000;// flush the results to python every moveNumInOneFlush iterations
 //    int flushMaxNum = 7000;
 
-    unsigned long long loopMax=3000*50000;//max number of loop to reach equilibrium
-    unsigned long  long loopToWrite=3000*20000;
+    unsigned long long loopMax=3000*60000;//max number of loop to reach equilibrium
+    unsigned long  long loopToWrite=3000*10000;
 
     unsigned long long dataNumTotal = 2000;
     unsigned long long dataNumInEq=0;
