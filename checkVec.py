@@ -33,7 +33,7 @@ startingLoop=3000*20000
 vecTruncated=vec[-startingLoop:]
 
 NLags=int(np.ceil(len(vecTruncated)*5/6))
-eps=1e-3
+eps=5*1e-2
 lagVal=0
 same=False
 with warnings.catch_warnings():

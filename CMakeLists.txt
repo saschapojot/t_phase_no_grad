@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories("/home/polya/cppLocal/armadillo/include")
 include_directories("/home/polya/cppLocal/msgpack-c-cpp_master/include")
-set(Python3_INCLUDE_DIRS "/home/polya/cppLocal/python/include/python3.12")
-set(Python3_LIBRARIES "/home/polya/cppLocal/python/lib/libpython3.12.a")
+set(Python3_INCLUDE_DIRS "/home/polya/cppLocal/python/include/python3.10")
+set(Python3_LIBRARIES "/home/polya/cppLocal/python/lib/libpython3.10.a")
 include_directories(${Python3_INCLUDE_DIRS})
 
 
