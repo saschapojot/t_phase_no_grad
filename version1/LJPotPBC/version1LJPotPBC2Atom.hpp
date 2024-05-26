@@ -197,6 +197,9 @@ public:
         double dValEst=2;
 
         double stepSize=dValEst*T/(std::abs(funcPtr->dVEst(rEst,cellNum)));
+        if (stepSize>0.005){
+            stepSize=0.005;
+        }
         this->h=stepSize;
 
 
