@@ -35,12 +35,28 @@ int main(int argc, char *argv[]) {
     arma::dcolvec last_xA;
     arma::dcolvec last_xB;
     double last_L;
-    v1Obj.readEqMc(lag,totalLoopEq,eq,same,last_xA,last_xB,last_L);
+    std::unique_ptr<double[]> U_ptr;
+    std::unique_ptr<double[]> L_ptr;
+    std::unique_ptr<double[]> xA_ptr;
+    std::unique_ptr<double[]> xB_ptr;
+
+    try{
+        U_ptr=std::make_unique<double[]>(version1dLJPot2Atom::loopMax);
+        L_ptr=std::make_unique<double[]>(version1dLJPot2Atom::loopMax);
+        xA_ptr=std::make_unique<double[]>(version1dLJPot2Atom::loopMax*cellNum);
+        xB_ptr=std::make_unique<double[]>(version1dLJPot2Atom::loopMax*cellNum);
+    }
+    catch (const std::bad_alloc& e) {
+        std::cerr << "Memory allocation error: " << e.what() << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+    }
+    v1Obj.readEqMc(lag,totalLoopEq,eq,same,last_xA,last_xB,last_L,U_ptr.get(),L_ptr.get(),xA_ptr.get(),xB_ptr.get());
 
     std::cout<<"after reacEqMc: equilibrium="<<eq<<std::endl;
 
     if(!same and lag>0 and eq){
-        v1Obj.executionMCAfterEq(lag,totalLoopEq,last_xA,last_xB,last_L);
+        v1Obj.executionMCAfterEq(lag,totalLoopEq,last_xA,last_xB,last_L,U_ptr.get(),L_ptr.get(),xA_ptr.get(),xB_ptr.get());
     }
 
     return 0;

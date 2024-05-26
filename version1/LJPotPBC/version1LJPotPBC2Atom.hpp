@@ -197,7 +197,7 @@ public:
         double dValEst=0.5;
 
         double stepSize=dValEst*T/(std::abs(funcPtr->dVEst(rEst,cellNum)));
-        this->h=stepSize;
+        this->h=0.005;//stepSize;
 
 
         std::cout<<"h="<<h<<std::endl;
@@ -280,7 +280,7 @@ public:
     /// @param xBLast last positions of atom B
     /// @param LLast last value of total length
     void readEqMc(unsigned long long &lag, unsigned long long &loopTotal, bool &equilibrium, bool &same, arma::dcolvec &xALast,
-                  arma::dcolvec &xBLast, double &LLast);
+                  arma::dcolvec &xBLast, double &LLast,double * U_ptr,double *L_ptr, double *xA_ptr, double *xB_ptr );
 
 
 
@@ -292,7 +292,7 @@ public:
     /// @param xB_init xB from readEqMc
     /// @param LInit L from readEqMc
     void executionMCAfterEq(const unsigned long long &lag, const unsigned long long &loopEq, const arma::dcolvec &xA_init,
-                            const arma::dcolvec &xB_init, const double &LInit);
+                            const arma::dcolvec &xB_init, const double &LInit,double * U_ptr,double *L_ptr, double *xA_ptr, double *xB_ptr );
 
 
 public:
@@ -301,8 +301,8 @@ public:
 //    int moveNumInOneFlush = 3000;// flush the results to python every moveNumInOneFlush iterations
 //    int flushMaxNum = 7000;
 
-    unsigned long long loopMax=3000*60000;//max number of loop to reach equilibrium
-    unsigned long  long loopToWrite=3000*10000;
+   static const unsigned long long loopMax=3000*6000;//max number of loop to reach equilibrium
+    unsigned long  long loopToWrite=3000*1000;
 
     unsigned long long dataNumTotal = 2000;
     unsigned long long dataNumInEq=0;
@@ -315,12 +315,12 @@ public:
     int rowNum;
     unsigned long long nEqCounterStart=0;// loop number when equilibrium is reached
 
-    unsigned long long writeInterval=10000000;
+    unsigned long long writeInterval=loopToWrite;
 };
 
 
-void save_array_to_pickle(const std::unique_ptr<double[]>& ptr, std::size_t size, const std::string& filename);
+void save_array_to_pickle(double* ptr, std::size_t size, const std::string& filename);
 
 ///to msgpack bin file
-void save_to_bin_file(const std::unique_ptr<double[]>& data, unsigned long long size, const std::string& filename);
+void save_to_bin_file(double* data, unsigned long long size, const std::string& filename);
 #endif //T_PHASE_NO_GRAD_VERSION1LJPOTPBC2ATOM_HPP

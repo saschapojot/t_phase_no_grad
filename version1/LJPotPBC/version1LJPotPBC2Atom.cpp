@@ -202,7 +202,8 @@ void version1dLJPot2Atom::initPositionsEquiDistance(arma::dcolvec &xAInit, arma:
 /// @param xBLast last positions of atom B
 /// @param LLast last value of total length
 void version1dLJPot2Atom::readEqMc(unsigned long long &lag, unsigned long long&loopTotal, bool &equilibrium, bool &same, arma::dcolvec &xALast,
-                                   arma::dcolvec &xBLast, double &LLast){
+                                   arma::dcolvec &xBLast, double &LLast,
+                                   double * U_ptr,double *L_ptr, double *xA_ptr, double *xB_ptr ){
 
     std::random_device rd;
     std::ranlux24_base e2(rd());
@@ -260,22 +261,22 @@ void version1dLJPot2Atom::readEqMc(unsigned long long &lag, unsigned long long&l
     std::smatch matchCounterStart;
     std::smatch matchDataNumEq;
 
-    std::unique_ptr<double[]> U_ptr;
-    std::unique_ptr<double[]> L_ptr;
-    std::unique_ptr<double[]> xA_ptr;
-    std::unique_ptr<double[]> xB_ptr;
-
-    try{
-        U_ptr=std::make_unique<double[]>(loopMax);
-         L_ptr=std::make_unique<double[]>(loopMax);
-        xA_ptr=std::make_unique<double[]>(loopMax*N);
-         xB_ptr=std::make_unique<double[]>(loopMax*N);
-    }
-    catch (const std::bad_alloc& e) {
-        std::cerr << "Memory allocation error: " << e.what() << std::endl;
-    } catch (const std::exception& e) {
-        std::cerr << "Exception: " << e.what() << std::endl;
-    }
+//    std::unique_ptr<double[]> U_ptr;
+//    std::unique_ptr<double[]> L_ptr;
+//    std::unique_ptr<double[]> xA_ptr;
+//    std::unique_ptr<double[]> xB_ptr;
+//
+//    try{
+//        U_ptr=std::make_unique<double[]>(loopMax);
+//         L_ptr=std::make_unique<double[]>(loopMax);
+//        xA_ptr=std::make_unique<double[]>(loopMax*N);
+//         xB_ptr=std::make_unique<double[]>(loopMax*N);
+//    }
+//    catch (const std::bad_alloc& e) {
+//        std::cerr << "Memory allocation error: " << e.what() << std::endl;
+//    } catch (const std::exception& e) {
+//        std::cerr << "Exception: " << e.what() << std::endl;
+//    }
 
 
     arma::dcolvec xACurr(N);
@@ -461,7 +462,8 @@ void version1dLJPot2Atom::readEqMc(unsigned long long &lag, unsigned long long&l
 /// @param xB_init xB from readEqMc
 /// @param LInit L from readEqMc
 void version1dLJPot2Atom::executionMCAfterEq(const unsigned long long &lag, const unsigned long long &loopEq, const arma::dcolvec &xA_init,
-                        const arma::dcolvec &xB_init, const double &LInit) {
+                        const arma::dcolvec &xB_init, const double &LInit,
+                                             double * U_ptr,double *L_ptr, double *xA_ptr, double *xB_ptr ) {
 
 
     if (dataNumTotal <= dataNumInEq) {
@@ -478,22 +480,22 @@ void version1dLJPot2Atom::executionMCAfterEq(const unsigned long long &lag, cons
     std::cout<<"lastLoopNum="<<lastLoopNum<<std::endl;
 
 
-    std::unique_ptr<double[]> U_ptr;
-    std::unique_ptr<double[]> L_ptr;
-    std::unique_ptr<double[]> xA_ptr;
-    std::unique_ptr<double[]> xB_ptr;
-
-    try {
-        U_ptr = std::make_unique<double[]>(writeInterval);
-        L_ptr = std::make_unique<double[]>(writeInterval);
-        xA_ptr = std::make_unique<double[]>(writeInterval * N);
-        xB_ptr = std::make_unique<double[]>(writeInterval * N);
-    }
-    catch (const std::bad_alloc &e) {
-        std::cerr << "Memory allocation error: " << e.what() << std::endl;
-    } catch (const std::exception &e) {
-        std::cerr << "Exception: " << e.what() << std::endl;
-    }
+//    std::unique_ptr<double[]> U_ptr;
+//    std::unique_ptr<double[]> L_ptr;
+//    std::unique_ptr<double[]> xA_ptr;
+//    std::unique_ptr<double[]> xB_ptr;
+//
+//    try {
+//        U_ptr = std::make_unique<double[]>(writeInterval);
+//        L_ptr = std::make_unique<double[]>(writeInterval);
+//        xA_ptr = std::make_unique<double[]>(writeInterval * N);
+//        xB_ptr = std::make_unique<double[]>(writeInterval * N);
+//    }
+//    catch (const std::bad_alloc &e) {
+//        std::cerr << "Memory allocation error: " << e.what() << std::endl;
+//    } catch (const std::exception &e) {
+//        std::cerr << "Exception: " << e.what() << std::endl;
+//    }
 
     arma::dcolvec xACurr(xA_init);
     arma::dcolvec xBCurr(xB_init);
@@ -553,7 +555,7 @@ void version1dLJPot2Atom::executionMCAfterEq(const unsigned long long &lag, cons
 
         //write to file every writeInterval loops
 
-        if ((lpNum + 1) % writeInterval == 0 and lpNum > 1) {
+        if ((lpNum + 1) % loopToWrite == 0 and lpNum > 1) {
             unsigned long long sizeOfArrayU = indOfArrayU + 1;
             unsigned long long sizeOfCoords = N * sizeOfArrayU;
             std::string filenameMiddle = "loopEnd" + std::to_string(lpNum);
@@ -640,7 +642,7 @@ void version1dLJPot2Atom::executionMCAfterEq(const unsigned long long &lag, cons
 }//end of function executionMCAfterEq
 
 
-void save_array_to_pickle(const std::unique_ptr<double[]>& ptr, std::size_t size, const std::string& filename) {
+void save_array_to_pickle(double *ptr, std::size_t size, const std::string& filename) {
     using namespace boost::python;
     try {
         Py_Initialize();  // Initialize the Python interpreter
@@ -691,7 +693,7 @@ void save_array_to_pickle(const std::unique_ptr<double[]>& ptr, std::size_t size
 
 
 ///to msgpack bin file
-void save_to_bin_file(const std::unique_ptr<double[]>& data, unsigned long long  size, const std::string& filename){
+void save_to_bin_file(double * data, unsigned long long  size, const std::string& filename){
 
 
 // Pack the size
@@ -699,10 +701,14 @@ void save_to_bin_file(const std::unique_ptr<double[]>& data, unsigned long long 
     msgpack::pack(sbuf, size);
 
     // Pack the raw data
-    sbuf.write(reinterpret_cast<const char*>(data.get()), size * sizeof(double));
+    sbuf.write(reinterpret_cast<const char*>(data), size * sizeof(double));
 
     // Write the packed data to a file
     std::ofstream outfile(filename, std::ios::binary);
+    if (!outfile) {
+        std::cerr << "Error opening file: " << filename << std::endl;
+        return;
+    }
     outfile.write(sbuf.data(), sbuf.size());
     outfile.close();
 
