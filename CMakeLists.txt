@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories("/home/polya/cppLocal/armadillo/include")
 include_directories("/home/polya/cppLocal/msgpack-c-cpp_master/include")
-set(Python3_INCLUDE_DIRS "/home/polya/cppLocal/python/include/python3.10")
-set(Python3_LIBRARIES "/home/polya/cppLocal/python/lib/libpython3.10.a")
+set(Python3_INCLUDE_DIRS "/home/polya/anaconda3/include/python3.9")
+set(Python3_LIBRARIES "/home/polya/anaconda3/lib/libpython3.9.so.1.0")
 include_directories(${Python3_INCLUDE_DIRS})
 
 
@@ -22,6 +22,7 @@ add_executable(runV1LJ2AtomPBC runV1LJ2AtomPBC.cpp version1/LJPotPBC/version1LJP
 
 add_executable(main main.cpp version1/LJPotPBC/version1LJPotPBC2Atom.cpp)
 
+add_executable(runV1LJ2AtomParseBinPBC runV1LJ2AtomParseBinPBC.cpp version1/LJPotPBC/version1LJPotPBC2Atom.cpp version1/LJPotPBC/parseBinPBC.cpp)
 
 
 set_source_files_properties(
@@ -31,7 +32,12 @@ set_source_files_properties(
         COMPILE_OPTIONS "-O3"
 )
 
+set_source_files_properties(
+        version1/LJPotPBC/parseBinPBC.cpp
+        PROPERTIES
 
+        COMPILE_OPTIONS "-O3"
+)
 
 set(Boost_NO_SYSTEM_PATHS YES)
 if (Boost_NO_SYSTEM_PATHS)
@@ -57,7 +63,7 @@ endif()
 file(GLOB LIBS_SO "/home/polya/cppLocal/armadillo/lib/*.so")
 target_link_libraries(runV1LJ2AtomPBC ${LIBS_SO})
 target_link_libraries(main ${LIBS_SO})
-
+target_link_libraries(runV1LJ2AtomParseBinPBC ${LIBS_SO})
 
 
 
@@ -78,3 +84,8 @@ target_link_libraries(main Boost::json)
 target_link_libraries(main Boost::python)
 target_link_libraries(main ${Python3_LIBRARIES})
 
+target_link_libraries(runV1LJ2AtomParseBinPBC Boost::serialization)
+target_link_libraries(runV1LJ2AtomParseBinPBC Boost::filesystem)
+target_link_libraries(runV1LJ2AtomParseBinPBC Boost::json)
+target_link_libraries(runV1LJ2AtomParseBinPBC Boost::python)
+target_link_libraries(runV1LJ2AtomParseBinPBC ${Python3_LIBRARIES})

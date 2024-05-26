@@ -35,16 +35,16 @@ int main(int argc, char *argv[]) {
     arma::dcolvec last_xA;
     arma::dcolvec last_xB;
     double last_L;
-    std::unique_ptr<double[]> U_ptr;
-    std::unique_ptr<double[]> L_ptr;
-    std::unique_ptr<double[]> xA_ptr;
-    std::unique_ptr<double[]> xB_ptr;
+    std::shared_ptr<double[]> U_ptr;
+    std::shared_ptr<double[]> L_ptr;
+    std::shared_ptr<double[]> xA_ptr;
+    std::shared_ptr<double[]> xB_ptr;
 
     try{
-        U_ptr=std::make_unique<double[]>(version1dLJPot2Atom::loopMax);
-        L_ptr=std::make_unique<double[]>(version1dLJPot2Atom::loopMax);
-        xA_ptr=std::make_unique<double[]>(version1dLJPot2Atom::loopMax*cellNum);
-        xB_ptr=std::make_unique<double[]>(version1dLJPot2Atom::loopMax*cellNum);
+        U_ptr=std::shared_ptr<double[]>(new double[version1dLJPot2Atom::loopMax], std::default_delete<double[]>());
+        L_ptr=std::shared_ptr<double[]>(new double[version1dLJPot2Atom::loopMax], std::default_delete<double[]>());;
+        xA_ptr=std::shared_ptr<double[]>(new double[version1dLJPot2Atom::loopMax*cellNum], std::default_delete<double[]>());
+        xB_ptr=std::shared_ptr<double[]>(new double[version1dLJPot2Atom::loopMax*cellNum], std::default_delete<double[]>());
     }
     catch (const std::bad_alloc& e) {
         std::cerr << "Memory allocation error: " << e.what() << std::endl;

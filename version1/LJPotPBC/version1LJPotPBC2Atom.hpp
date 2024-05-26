@@ -194,7 +194,7 @@ public:
         double rEst=funcPtr->r0;
 
         std::cout<<"rEst="<<rEst<<std::endl;
-        double dValEst=0.5;
+        double dValEst=2;
 
         double stepSize=dValEst*T/(std::abs(funcPtr->dVEst(rEst,cellNum)));
         this->h=0.005;//stepSize;
@@ -302,7 +302,7 @@ public:
 //    int flushMaxNum = 7000;
 
    static const unsigned long long loopMax=3000*6000;//max number of loop to reach equilibrium
-    unsigned long  long loopToWrite=3000*1000;
+    static const unsigned long  long loopToWrite=3000*1000;
 
     unsigned long long dataNumTotal = 2000;
     unsigned long long dataNumInEq=0;

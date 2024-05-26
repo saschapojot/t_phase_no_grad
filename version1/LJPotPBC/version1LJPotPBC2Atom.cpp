@@ -80,7 +80,7 @@ void version1dLJPot2Atom::parseCSV(const int &rowNum, double &alpha1, double &be
 /// @param cmd python execution string
 /// @return signal from the python
 std::string version1dLJPot2Atom::execPython(const char *cmd) {
-    std::array<char, 4096*4> buffer; // Buffer to store command output
+    std::array<char, 4096*10> buffer; // Buffer to store command output
     std::string result; // String to accumulate output
 
     // Open a pipe to read the output of the executed command
@@ -248,7 +248,7 @@ void version1dLJPot2Atom::readEqMc(unsigned long long &lag, unsigned long long&l
 
     std::regex sameRegex("same");
     std::regex eqRegex("equilibrium");
-    std::regex ctStartRegex("nCountStart=\\s*(\\d+)");
+    std::regex ctStartRegex("nCounterStart=\\s*(\\d+)");
     std::regex dataNumEqRegex("numDataPoints=\\s*(\\d+)");
 
     std::smatch matchUStop;
@@ -324,9 +324,9 @@ void version1dLJPot2Atom::readEqMc(unsigned long long &lag, unsigned long long&l
 //            unsigned long long lpStart=0;
 
             std::string filenameMiddle="loopStart0ReachEq";
-            std::string outUPicleFileName=outUAllPickleSubDir+filenameMiddle+ ".UAll.pkl";
+            std::string outUPickleFileName=outUAllPickleSubDir+filenameMiddle+ ".UAll.pkl";
             std::string outUBinFileName=outUAllBinSubDir+filenameMiddle+"UAll.bin";
-            save_array_to_pickle(U_ptr,sizeOfArray,outUPicleFileName);
+            save_array_to_pickle(U_ptr,sizeOfArray,outUPickleFileName);
             save_to_bin_file(U_ptr,sizeOfArray,outUBinFileName);
 
 
@@ -334,7 +334,7 @@ void version1dLJPot2Atom::readEqMc(unsigned long long &lag, unsigned long long&l
             save_to_bin_file(xA_ptr,sizeOfCoords,out_xA_BinFileName);
 
             std::string out_xB_BinFileName=out_xB_AllBinSubDir+filenameMiddle+".xB_All.bin";
-            save_to_bin_file(xB_ptr,sizeOfCoords,out_xA_BinFileName);
+            save_to_bin_file(xB_ptr,sizeOfCoords,out_xB_BinFileName);
 
             std::string outLBinFileName=outLAllBinSubDir+filenameMiddle+".LAll.bin";
             save_to_bin_file(L_ptr,sizeOfArray,outLBinFileName);
@@ -349,7 +349,7 @@ void version1dLJPot2Atom::readEqMc(unsigned long long &lag, unsigned long long&l
             //communicate with python to inquire equilibrium
 
             //inquire equilibrium of U
-            std::string commandU = "python3 checkVec.py " + outUPicleFileName;
+            std::string commandU = "python3 checkVec.py " + outUPickleFileName;
             std::string resultU;
 
             try {
@@ -399,16 +399,25 @@ void version1dLJPot2Atom::readEqMc(unsigned long long &lag, unsigned long long&l
                 if (std::regex_search(resultU, matchULag, lagRegex)) {
 
                     std::string lagStrU = matchULag.str(1);
-                    int lagU = std::stoi(lagStrU);
+                    unsigned long long lagU = std::stoull(lagStrU);
                     std::cout << "lag=" << lagU << std::endl;
                     lag = lagU;
 
 
-                    std::regex_search(resultU,matchCounterStart,ctStartRegex);
-                    this->nEqCounterStart=std::stoull(matchCounterStart.str(1));
+                   if( std::regex_search(resultU,matchCounterStart,ctStartRegex)){
+                       this->nEqCounterStart=std::stoull(matchCounterStart.str(1));
 
-                    std::regex_search(resultU,matchDataNumEq,dataNumEqRegex);
-                    this->dataNumInEq=std::stoull(matchDataNumEq.str(1));
+                       std::cout<<"nEqCounterStart="<<nEqCounterStart<<std::endl;
+
+                   }
+
+
+                    if(std::regex_search(resultU,matchDataNumEq,dataNumEqRegex)){
+                        this->dataNumInEq=std::stoull(matchDataNumEq.str(1));
+
+                        std::cout<<"dataNumInEq="<<dataNumInEq<<std::endl;
+
+                    }
 
                     active = false;
 
@@ -568,7 +577,7 @@ void version1dLJPot2Atom::executionMCAfterEq(const unsigned long long &lag, cons
             save_to_bin_file(xA_ptr, sizeOfCoords, out_xA_BinFileName);
 
             std::string out_xB_BinFileName = out_xB_AllBinSubDir + filenameMiddle + ".xB_All.bin";
-            save_to_bin_file(xB_ptr, sizeOfCoords, out_xA_BinFileName);
+            save_to_bin_file(xB_ptr, sizeOfCoords, out_xB_BinFileName);
 
             std::string outLBinFileName = outLAllBinSubDir + filenameMiddle + ".LAll.bin";
             save_to_bin_file(L_ptr, sizeOfArrayU, outLBinFileName);
