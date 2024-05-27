@@ -15,6 +15,13 @@ int main(int argc, char *argv[]) {
     unsigned long long cellNum=10;
     auto rd=reader(rowNum,whichT,cellNum);
     rd.searchFiles();
+    rd.sortFiles();
+    rd.parseSummary();
+    rd.data2json();
+    rd.colmeans();
+    rd.computeGAA();
+    rd.computeGAB();
+    rd.computeGBB();
 
 
 

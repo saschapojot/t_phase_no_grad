@@ -705,12 +705,15 @@ void save_array_to_pickle(double *ptr, std::size_t size, const std::string& file
 void save_to_bin_file(double * data, unsigned long long  size, const std::string& filename){
 
 
-// Pack the size
+/// Create a MessagePack buffer
     msgpack::sbuffer sbuf;
-    msgpack::pack(sbuf, size);
 
-    // Pack the raw data
-    sbuf.write(reinterpret_cast<const char*>(data), size * sizeof(double));
+    // Pack the array of doubles
+    msgpack::packer<msgpack::sbuffer> packer(sbuf);
+    packer.pack_array(size);
+    for (unsigned long long i = 0; i < size; ++i) {
+        packer.pack_double(data[i]);
+    }
 
     // Write the packed data to a file
     std::ofstream outfile(filename, std::ios::binary);
