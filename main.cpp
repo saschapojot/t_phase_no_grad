@@ -1,9 +1,10 @@
-#include <iostream>
+
 #include "version1/LJPotPBC/version1LJPotPBC2Atom.hpp"
 
 
 
 int main(int argc, char *argv[]) {
+
     if (argc != 3) {
         std::cout << "wrong arguments" << std::endl;
         std::exit(2);
@@ -28,5 +29,7 @@ int main(int argc, char *argv[]) {
     unsigned long long cellNum = 10;
     std::cout.precision(11);
     auto v1Obj=version1dLJPot2Atom(rowNum,T,cellNum,std::make_shared<LJPotPBC>(alpha1,alpha2,beta1,beta2,p1,p2,q1,q2,r0));
+
+
 
 }
