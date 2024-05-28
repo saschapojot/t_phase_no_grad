@@ -252,9 +252,14 @@ void reader::data2json(){
 
     boost::json::object objU;
     boost::json::array arrU;
-    for(unsigned long long i=0;i<USize;i++){
+    size_t countU0=0;
+    for(unsigned long long i=0;i<USize;i++) {
         arrU.push_back(USelected[i]);
+        if (std::abs(USelected[i]) < 1e-5) {
+            countU0++;
+        }
     }
+    std::cout<<"countU0="<<countU0<<std::endl;
 
     objU["U"] = arrU;
     std::ofstream ofsU(UJsonFile);
@@ -269,8 +274,16 @@ void reader::data2json(){
     const std::chrono::duration<double> elapsed_xAsecondsAll{tRead_xAEnd - tRead_xAStart};
     std::cout<<"xA_size="<<xA_size<<std::endl;
     std::cout << "read xA time: " << elapsed_xAsecondsAll.count() / 3600.0 << " h" << std::endl;
-    double *rawPtr_A=xA_selected.get();
-    arma::dcolvec vecA(rawPtr_A,xA_size, true, true);
+//    double *rawPtr_A=xA_selected.get();
+//    arma::dcolvec vecA(rawPtr_A,xA_size, true, true);
+    arma::dcolvec vecA(xA_size,0);
+    size_t countxA0=0;
+    for(size_t i=0;i<xA_size;i++){
+        vecA(i)=xA_selected[i];
+        if (std::abs(xA_selected[i])<1e-5){
+            countxA0++;
+        }
+    }
 
     this->arma_xA=arma::reshape(vecA,cellNum,USize).t();
     std::cout<<"arma_xA shape=("<<arma_xA.n_rows<<", "<<arma_xA.n_cols<<")"<<std::endl;
@@ -283,8 +296,12 @@ void reader::data2json(){
     std::cout<<"xB_size="<<xB_size<<std::endl;
     std::cout << "read xB time: " << elapsed_xBsecondsAll.count() / 3600.0 << " h" << std::endl;
 
-    double *rawPtr_B=xB_selected.get();
-    arma::dcolvec vecB(rawPtr_B,xB_size, true, true);
+//    double *rawPtr_B=xB_selected.get();
+//    arma::dcolvec vecB(rawPtr_B,xB_size, true, true);
+    arma::dcolvec vecB(xB_size,0);
+    for(size_t i=0;i<xB_size;i++){
+        vecB(i)=xB_selected[i];
+    }
     this->arma_xB=arma::reshape(vecB,cellNum,USize).t();
     std::cout<<"arma_xB shape=("<<arma_xB.n_rows<<", "<<arma_xB.n_cols<<")"<<std::endl;
 
