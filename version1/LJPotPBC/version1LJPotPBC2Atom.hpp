@@ -89,7 +89,7 @@ public:
         this->p2 = p2Val;
         this->q1 = q1Val;
         this->q2 = q2Val;
-        this->r0=r0;
+        this->r0=r0Val;
     }//end of constructor
 
 public:

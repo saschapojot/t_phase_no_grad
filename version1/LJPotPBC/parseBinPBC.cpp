@@ -131,13 +131,14 @@ bool reader::loadMsgFile(const std::string& filename, std::shared_ptr<double[]>&
 
     // Load the values into the preallocated shared_ptr<double[]>
     for (size_t i = 0; i < number_of_values; ++i) {
-        if (obj.via.array.ptr[i].type != msgpack::type::FLOAT64) {
-            std::cerr << "Element " << i << " type: " << obj.via.array.ptr[i].type << " is not a double value" << std::endl;
-            return false;
-        }
+//        if (obj.via.array.ptr[i].type != msgpack::type::FLOAT64) {
+//            std::cerr << "Element " << i << " type: " << obj.via.array.ptr[i].type << " is not a double value" << std::endl;
+//            std::cerr<<"Element "<< i<<" = "<<obj.via.array.ptr[i]<<std::endl;
+//            return false;
+//        }
         values[i] = obj.via.array.ptr[i].via.f64;
     }
-
+    return true;
 
 }
 
@@ -276,7 +277,7 @@ void reader::data2json(){
     std::cout << "read xA time: " << elapsed_xAsecondsAll.count() / 3600.0 << " h" << std::endl;
 //    double *rawPtr_A=xA_selected.get();
 //    arma::dcolvec vecA(rawPtr_A,xA_size, true, true);
-    arma::dcolvec vecA(xA_size,0);
+    arma::dcolvec vecA(xA_size);
     size_t countxA0=0;
     for(size_t i=0;i<xA_size;i++){
         vecA(i)=xA_selected[i];
@@ -284,6 +285,7 @@ void reader::data2json(){
             countxA0++;
         }
     }
+    std::cout<<"countxA0="<<countxA0<<std::endl;
 
     this->arma_xA=arma::reshape(vecA,cellNum,USize).t();
     std::cout<<"arma_xA shape=("<<arma_xA.n_rows<<", "<<arma_xA.n_cols<<")"<<std::endl;
@@ -298,10 +300,17 @@ void reader::data2json(){
 
 //    double *rawPtr_B=xB_selected.get();
 //    arma::dcolvec vecB(rawPtr_B,xB_size, true, true);
-    arma::dcolvec vecB(xB_size,0);
+    size_t countxB0=0;
+
+    arma::dcolvec vecB(xB_size);
     for(size_t i=0;i<xB_size;i++){
         vecB(i)=xB_selected[i];
+        if (std::abs(xB_selected[i])<1e-5){
+            countxB0++;
+        }
     }
+    std::cout<<"countxB0="<<countxB0<<std::endl;
+
     this->arma_xB=arma::reshape(vecB,cellNum,USize).t();
     std::cout<<"arma_xB shape=("<<arma_xB.n_rows<<", "<<arma_xB.n_cols<<")"<<std::endl;
 

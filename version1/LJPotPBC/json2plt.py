@@ -15,9 +15,12 @@ TVals=[]
 TFileNames=[]
 
 for TFile in glob.glob(pathData+"/T*"):
-    TFileNames.append(TFile)
 
     matchT=re.search(r"T(\d+(\.\d+)?)",TFile)
+    if float(matchT.group(1))>0.001:
+        continue
+    TFileNames.append(TFile)
+
 
     TVals.append(float(matchT.group(1)))
 

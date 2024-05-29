@@ -325,7 +325,7 @@ void version1dLJPot2Atom::readEqMc(unsigned long long &lag, unsigned long long&l
 
             std::string filenameMiddle="loopStart0ReachEq";
             std::string outUPickleFileName=outUAllPickleSubDir+filenameMiddle+ ".UAll.pkl";
-            std::string outUBinFileName=outUAllBinSubDir+filenameMiddle+"UAll.bin";
+            std::string outUBinFileName=outUAllBinSubDir+filenameMiddle+".UAll.bin";
             save_array_to_pickle(U_ptr,sizeOfArray,outUPickleFileName);
             save_to_bin_file(U_ptr,sizeOfArray,outUBinFileName);
 
