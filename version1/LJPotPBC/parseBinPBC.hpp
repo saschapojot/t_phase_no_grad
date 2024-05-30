@@ -43,7 +43,7 @@ public:
 
         if (fs::exists(searchPath) && fs::is_directory(searchPath)) {
             for (const auto &entry : fs::directory_iterator(searchPath)) {
-                if (entry.path().filename().string()[0] == 'T') {
+                if (entry.path().filename().string()[0] == 'T' and entry.path().filename().string()[1] != 'x') {
                     TDirs.push_back(entry.path().filename().string());
                     std::smatch matchT;
                     if (std::regex_search(entry.path().filename().string(), matchT, std::regex(TPattern))) {

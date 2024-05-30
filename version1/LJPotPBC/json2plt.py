@@ -17,12 +17,15 @@ TFileNames=[]
 for TFile in glob.glob(pathData+"/T*"):
 
     matchT=re.search(r"T(\d+(\.\d+)?)",TFile)
-    if float(matchT.group(1))>0.3 and float(matchT.group(1))<0.4:
-        continue
-    TFileNames.append(TFile)
+
+    if matchT:
+        TFileNames.append(TFile)
+        TVals.append(float(matchT.group(1)))
 
 
-    TVals.append(float(matchT.group(1)))
+
+
+
 
 #sort T files
 

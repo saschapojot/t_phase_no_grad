@@ -14,11 +14,13 @@ TVals=[]
 TFileNames=[]
 
 for TFile in glob.glob(pathData+"/T*"):
+
     TFileNames.append(TFile)
 
     matchT=re.search(r"T(\d+(\.\d+)?)",TFile)
 
     TVals.append(float(matchT.group(1)))
+
 
 #sort T files
 
