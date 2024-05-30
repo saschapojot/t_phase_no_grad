@@ -320,7 +320,7 @@ public:
    static const unsigned long long loopMax=3000*6000;//max number of loop to reach equilibrium
     static const unsigned long  long loopToWrite=3000*1000;
 
-    unsigned long long dataNumTotal = 3000;
+    unsigned long long dataNumTotal = 16000;
     unsigned long long dataNumInEq=0;
     double h;// step size
     unsigned long long N;//number of unit cells
