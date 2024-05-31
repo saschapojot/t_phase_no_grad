@@ -172,6 +172,7 @@ def plotGAA(j):
     colATmp=fAArray[:,j]
     plt.plot(sortedTVals,colATmp,color="blue")
     plt.scatter(sortedTVals,colATmp,color="red")
+    plt.ylim((-0.5,0.5))
     plt.xlabel("T")
     plt.ylabel("$G^{AA}($"+str(j)+"$)$")
 
@@ -191,6 +192,7 @@ def plotrAA(j):
     rhoTmp=colATmp/colA0
     plt.plot(sortedTVals,rhoTmp,color="green")
     plt.scatter(sortedTVals,rhoTmp,color="magenta")
+    plt.ylim((0,1.5))
     plt.xlabel("T")
     plt.ylabel("$\\rho^{AA}($"+str(j)+"$)$")
 
