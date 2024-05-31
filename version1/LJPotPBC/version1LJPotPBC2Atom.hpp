@@ -213,7 +213,7 @@ public:
         if (stepSize>0.005){
             stepSize=0.005;
         }
-        this->h=0.0005;//stepSize;
+        this->h=0.005;//stepSize;
 
 
         std::cout<<"h="<<h<<std::endl;
