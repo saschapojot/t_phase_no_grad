@@ -17,9 +17,11 @@ TFileNames=[]
 for TFile in glob.glob(pathData+"/T*"):
 
     matchT=re.search(r"T(\d+(\.\d+)?)",TFile)
+
     if matchT:
         TFileNames.append(TFile)
         TVals.append(float(matchT.group(1)))
+
 
 
 
