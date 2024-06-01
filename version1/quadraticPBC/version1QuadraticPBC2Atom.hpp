@@ -78,7 +78,7 @@ public:
         this->coef1=coef1Val;
         this->coef2=coef2Val;
 
-        std::cout<<"a1="<<this->a1<<", a2="<<this->a2<<", c1="<<this->coef1<<", c2="<<coef2<<std::endl;
+//        std::cout<<"a1="<<this->a1<<", a2="<<this->a2<<", c1="<<this->coef1<<", c2="<<coef2<<std::endl;
 
     }//end of constructor
 
@@ -299,7 +299,7 @@ public:
 //    int flushMaxNum = 7000;
 
    static const unsigned long long loopMax=30000;//3000*6000;//max number of loop to reach equilibrium
-    static const unsigned long  long loopToWrite=1000;
+    static const unsigned long  long loopToWrite=5000;
 
     unsigned long long dataNumTotal = 2000;
     unsigned long long dataNumInEq=0;

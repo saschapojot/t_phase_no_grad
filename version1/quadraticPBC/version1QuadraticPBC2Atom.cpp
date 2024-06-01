@@ -544,7 +544,7 @@ void version1Quadratic::executionMCAfterEq(const unsigned long long &lag, const 
             unsigned long long sizeOfCoords = N * sizeOfArrayU;
             std::string filenameMiddle = "loopEnd" + std::to_string(lpNum);
             std::string outUPicleFileName = outUAllPickleSubDir + filenameMiddle + ".UAll.pkl";
-            std::string outUBinFileName = outUAllBinSubDir + filenameMiddle + "UAll.bin";
+            std::string outUBinFileName = outUAllBinSubDir + filenameMiddle + ".UAll.bin";
             save_array_to_pickle(U_ptr, sizeOfArrayU, outUPicleFileName);
             save_to_bin_file(U_ptr, sizeOfArrayU, outUBinFileName);
 
