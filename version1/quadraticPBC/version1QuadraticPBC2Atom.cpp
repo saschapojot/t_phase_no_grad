@@ -102,9 +102,9 @@ void version1Quadratic::proposal(const arma::dcolvec &xACurr, const arma::dcolve
     std::random_device rd;
     std::ranlux24_base gen(rd());
     //fix left end (0A)
-//    zANext(0)=xACurr(0);
+    zANext(0)=xACurr(0);
 
-    for (int j = 0; j < N; j++) {
+    for (int j = 1; j < N; j++) {
         std::normal_distribution<double> dTmp(xACurr(j), stddev);
         zANext(j) = dTmp(gen);
     }
@@ -154,7 +154,7 @@ double version1Quadratic::acceptanceRatio(const arma::dcolvec &xA, const arma::d
 /// @param xBInit initial positions of B
 /// @param LInit
 void version1Quadratic::initPositionsEquiDistance(arma::dcolvec &xAInit, arma::dcolvec &xBInit, double &LInit){
-    double a = 5;
+    double a = 1.5;
     for (int n = 0; n < N; n++) {
         double nDB = static_cast<double >(n);
         xAInit(n) = a * nDB * 2.0;
@@ -274,7 +274,7 @@ void version1Quadratic::readEqMc(unsigned long long &lag, unsigned long long&loo
         proposal(xACurr, xBCurr,LCurr, xANext, xBNext,LNext);
         double r = acceptanceRatio(xACurr, xBCurr,LCurr, xANext, xBNext,LNext);
         double u = distUnif01(e2);
-
+//        double UTmp=UCurr;
         if (u <= r) {
 //                std::cout<<"UCurr="<<UCurr<<std::endl;
             xACurr = xANext;
@@ -282,6 +282,9 @@ void version1Quadratic::readEqMc(unsigned long long &lag, unsigned long long&loo
             LCurr=LNext;
             UCurr = (*potFuncPtr)(xACurr, xBCurr,LCurr);
 //                std::cout<<"UNext="<<UCurr<<std::endl;
+//            double UDiff=UCurr-UTmp;
+//            std::cout<<"UDiff="<<UDiff<<std::endl;
+//            std::cout<<"-UDiff/T="<<-UDiff/T<<std::endl;
         }//end of accept-reject
 
         U_ptr[lpNum]=UCurr;
@@ -600,7 +603,7 @@ void version1Quadratic::executionMCAfterEq(const unsigned long long &lag, const 
 
     std::string filenameMiddle = "loopEnd" + std::to_string(lpNum+lastLoopNum-1);
     std::string outUPicleFileName = outUAllPickleSubDir + filenameMiddle + ".UAll.pkl";
-    std::string outUBinFileName = outUAllBinSubDir + filenameMiddle + "UAll.bin";
+    std::string outUBinFileName = outUAllBinSubDir + filenameMiddle + ".UAll.bin";
 
     save_array_to_pickle(U_ptr,lastLoopNum,outUPicleFileName);
     save_to_bin_file(U_ptr,lastLoopNum,outUBinFileName);

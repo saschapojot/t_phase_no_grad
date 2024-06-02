@@ -75,7 +75,7 @@ else:
         print("len(selectedFromPart1)="+str(len(selectedFromPart1)))
         msg="lag="+str(lagVal)+"\n"+"K-S statistic: "+str(result.statistic)+"\n"+"P-value: "+str(result.pvalue)+"\n"\
             +"numDataPoints="+str(numDataPoints)+"\n"+"nCounterStart="+str(startingLoop)+"\n"
-        if result.pvalue>0.1 or numDataPoints<100:
+        if result.pvalue>0.1 and numDataPoints>200:
             print(sigEq)
             print(msg)
             exit()

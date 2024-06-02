@@ -59,7 +59,7 @@ def pltU(oneTFile):
     meanU=np.round(meanU,4)
     sigmaU=np.round(sigmaU,4)
 
-    axU.set_title("T="+str(np.round(TVal,3)))
+    axU.set_title("T="+str(TVal))
     axU.set_xlabel("$U$")
     axU.set_ylabel("#")
     xPosUText=(np.max(UVec)-np.min(UVec))*1/2+np.min(UVec)
@@ -170,7 +170,7 @@ def plt_xAxB(oneTFile):
         xAMean=np.round(xAMean,4)
         xASigma=np.round(xASigma,4)
 
-        axx.set_title("Unit cell "+str(j)+", T="+str(np.round(TVal,3)))
+        axx.set_title("Unit cell "+str(j)+", T="+str(TVal))
 
         plt.axvline(x=xAMean,color="red",label="mean A")
         axx.text(xAMean*1.1,0.5*np.max(nA),str(xAMean)+"$\pm$"+str(xASigma),color="red")
@@ -225,7 +225,7 @@ def plt_xAxB(oneTFile):
     plt.gca().get_yaxis().set_visible(False)
     plt.axhline(y=0, color='black', linewidth=0.5,alpha=0.3)
     gridOut="T"+str(TVal)+"grid.pdf"
-    plt.title("T="+str(np.round(TVal,4)))
+    plt.title("T="+str(TVal))
     plt.savefig(oneTFile+"/"+gridOut)
 
     plt.close()

@@ -19,10 +19,10 @@ int main(int argc, char *argv[]) {
     double r0=1;
 //    std::cout<<"r0="<<r0<<std::endl;
 //    auto qFunc=quadratic(a1,a2,c1,c2,r0);
-    unsigned long long cellNum = 10;
+    unsigned long long cellNum = 2;
 
     auto v1Obj=version1Quadratic(rowNum,T,cellNum,std::make_shared<quadratic>(a1,a2,c1,c2,r0));
-
+//auto v1Obj=version1Quadratic(rowNum,T,cellNum,std::make_shared<quadraticQuartic>(a1,a2,c1,c2,r0));
     unsigned long long lag=0;
     unsigned long long totalLoopEq=0;
     bool eq=false;

@@ -9,7 +9,7 @@ from datetime import datetime
 
 import pandas as pd
 
-pathData="../../version1Data/1d/funcLJPotPBC/row0"
+pathData="../../version1Data/1d/funcquadratic/row0"
 TVals=[]
 TFileNames=[]
 
@@ -193,6 +193,7 @@ def plotrAA(j):
     plt.scatter(sortedTVals,rhoTmp,color="magenta")
     plt.xlabel("T")
     plt.ylabel("$\\rho^{AA}($"+str(j)+"$)$")
+    plt.ylim((-1.1,1.1))
 
 
     plt.savefig(pathData+"/rhoAA"+str(j)+".pdf")
@@ -278,14 +279,16 @@ def plotrAB(j):
 
 
 
+plotGAA(0)
+# plotrAA(0)
 plotGAA(int(N/2))
 plotrAA(int(N/2))
 
-plotGBB(int(N/2))
-plotrBB(int(N/2))
-
-plotGAB(int(N/2))
-plotrAB(int(N/2))
-
-plotGAB(-int(N/2))
-plotrAB(-int(N/2))
+# plotGBB(int(N/2))
+# plotrBB(int(N/2))
+#
+# plotGAB(int(N/2))
+# plotrAB(int(N/2))
+#
+# plotGAB(-int(N/2))
+# plotrAB(-int(N/2))

@@ -51,7 +51,7 @@ std::vector<std::string> reader::sortOneDir(const std::vector<std::string> &allF
 
 ///sort files by starting loop
 void reader::sortFiles(){
-    this->sorted_UFilesAll.push_back(this->UPath+"/loopStart0ReachEqUAll.bin");
+    this->sorted_UFilesAll.push_back(this->UPath+"/loopStart0ReachEq.UAll.bin");
     std::vector<std::string> UEndSorted=this->sortOneDir(this->UFilesAll);
     this->sorted_UFilesAll.insert(this->sorted_UFilesAll.end(),UEndSorted.begin(),UEndSorted.end());
 //    printVec(sorted_UFilesAll);
@@ -446,4 +446,57 @@ void reader::computeGBB(){
 
     printMat(GBB,ofs);
     ofs.close();
+}
+
+///compute variance of position variables
+void reader::computeVar(){
+
+    arma::drowvec varxAVec=arma::var(arma_xA,0,0);
+    arma::drowvec varxBVec=arma::var(arma_xB,0,0);
+    std::string jsonPath = this->TDir + "/jsonData/";
+//    varxAVec.print("varxAVec");
+//    varxBVec.print("varxBVec");
+//    std::cout<<"jsonPath="<<jsonPath<<std::endl;
+
+//    ///xA
+    std::string jsonVar_xAPath= jsonPath + "/jsonVar_xA/";
+    if (!fs::is_directory(jsonVar_xAPath) || !fs::exists(jsonVar_xAPath)) {
+        fs::create_directories(jsonVar_xAPath);
+    }
+
+    std::string var_xAJsonFile=jsonVar_xAPath+"/var_xA.json";
+
+    boost::json::object objVar_xA;
+    boost::json::array arrVar_xA;
+    for(auto i=0;i<varxAVec.n_elem;i++){
+        arrVar_xA.push_back(varxAVec(i));
+    }
+
+    objVar_xA["var_xA"]=arrVar_xA;
+
+    std::ofstream  ofsVar_xA(var_xAJsonFile);
+    std::string var_xAStr=boost::json::serialize(objVar_xA);
+    ofsVar_xA<<var_xAStr<<std::endl;
+    ofsVar_xA.close();
+
+    ///xB
+    std::string jsonVar_xBPath= jsonPath + "/jsonVar_xB/";
+    if (!fs::is_directory(jsonVar_xBPath) || !fs::exists(jsonVar_xBPath)) {
+        fs::create_directories(jsonVar_xBPath);
+    }
+
+    std::string var_xBJsonFile=jsonVar_xBPath+"/var_xB.json";
+    boost::json::object objVar_xB;
+    boost::json::array arrVar_xB;
+
+    for(auto i=0;i<varxBVec.n_elem;i++){
+        arrVar_xB.push_back(varxBVec(i));
+    }
+
+    objVar_xB["var_xB"]=arrVar_xB;
+    std::ofstream  ofsVar_xB(var_xBJsonFile);
+    std::string var_xBStr=boost::json::serialize(objVar_xB);
+    ofsVar_xB<<var_xBStr<<std::endl;
+    ofsVar_xB.close();
+
 }

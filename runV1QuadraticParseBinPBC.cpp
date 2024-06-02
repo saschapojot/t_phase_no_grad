@@ -12,16 +12,21 @@ int main(int argc, char *argv[]) {
     int rowNum=std::stoi(argv[1]);
     int whichT=std::stoi(argv[2]);
     const auto tStart{std::chrono::steady_clock::now()};
-    unsigned long long cellNum=10;
+    unsigned long long cellNum=2;
     auto rd=reader(rowNum,whichT,cellNum);
     rd.searchFiles();
     rd.sortFiles();
     rd.parseSummary();
     rd.data2json();
+
     rd.colmeans();
     rd.computeGAA();
     rd.computeGAB();
     rd.computeGBB();
+    rd.computeVar();
+    const auto tEnd{std::chrono::steady_clock::now()};
+    const std::chrono::duration<double> elapsed_secondsAll{tEnd - tStart};
+    std::cout<< "parsing time: " << elapsed_secondsAll.count() / 3600.0 << " h" << std::endl;
 
 
 

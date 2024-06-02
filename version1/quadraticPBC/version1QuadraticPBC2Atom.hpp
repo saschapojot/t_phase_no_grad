@@ -105,7 +105,7 @@ public:
 //        rVec.print("rVec");
 
 
-        arma::dcolvec vecPart1 = arma::pow(rVec,2)*coef1;
+        arma::dcolvec vecPart1 = arma::pow(rVec,2)*coef1;//+arma::pow(rVec,4) ;
 //        std::cout<<"vecPart1="<<vecPart1<<std::endl;
 
         double val = arma::sum(vecPart1);
@@ -135,10 +135,10 @@ public:
 
 //        std::cout<<"V2Total: rVec="<<rVec<<std::endl;
 
-        arma::dcolvec vecPart1 = coef2*arma::pow(rVec,2);
+        arma::dcolvec vecPart1 = coef2*arma::pow(rVec,2);//+arma::pow(rVec,4);
 
 //        vecPart1.print("vecPart1");
-        double V2Last=std::pow(L-(xB(N-1)-xA(0))-a2,2)*coef2;
+        double V2Last=std::pow(L-(xB(N-1)-xA(0))-a2,2)*coef2;//+std::pow(L-(xB(N-1)-xA(0))-a2,4);
 
 //        std::cout<<"V2Last="<<V2Last<<std::endl;
 
@@ -169,6 +169,108 @@ public:
 
 };
 
+
+class quadraticQuartic : public potentialFunction {
+public:
+    quadraticQuartic(const double &a1Val, const double &a2Val, const double& coef1Val, const double& coef2Val, const double &r0Val):potentialFunction(a1Val, a2Val,  coef1Val,  coef2Val, r0Val)  {
+
+
+        this->a1=a1Val;
+        this->a2=a2Val;
+        this->r0=r0Val;
+        this->coef1=coef1Val;
+        this->coef2=coef2Val;
+
+//        std::cout<<"a1="<<this->a1<<", a2="<<this->a2<<", c1="<<this->coef1<<", c2="<<coef2<<std::endl;
+
+    }//end of constructor
+
+public:
+    ///
+    /// @param xA positions of atom A
+    /// @param xB positions of atom B
+    /// @return potential energy
+    double operator()(const arma::dcolvec &xA, const arma::dcolvec &xB, const double& L) const override {
+        return V1Total(xA, xB) + V2Total(xA, xB,L);
+
+    }
+
+
+    ///
+    /// @param xA positions of atom A
+    /// @param xB positions of atom B
+    /// @return the sum of all V1 energy
+    double V1Total(const arma::dcolvec &xA, const arma::dcolvec &xB) const {
+        arma::dcolvec rVec = xA-xB;
+//        rVec.print("rVec");
+        rVec+=a1;
+
+//        rVec.print("rVec");
+
+
+        arma::dcolvec vecPart1 = arma::pow(rVec,2)*coef1+20*arma::pow(rVec,4) ;
+//        std::cout<<"vecPart1="<<vecPart1<<std::endl;
+
+        double val = arma::sum(vecPart1);
+//        std::cout<<"V1Total="<<val<<std::endl;
+        return val;
+
+
+    }
+
+    ///
+    /// @param xA positions of atom A
+    /// @param xB positions of atom B
+    /// @param L length of the PBC loop
+    /// @return the sum of all V2 energy under OBC
+    double V2Total(const arma::dcolvec &xA, const arma::dcolvec &xB, const double &L) const {
+        size_t N = xB.size();
+        if (N == 0) {
+            return 0;
+        }
+        arma::dcolvec sliceA = xA.subvec(1, N - 1);
+//    std::cout<<"sliceA="<<sliceA<<std::endl;
+        arma::dcolvec sliceB = xB.subvec(0, N - 2);
+        arma::dcolvec rVec = sliceB-sliceA;
+        rVec+=a2;
+//        rVec.print("rVec");
+//        std::cout<<"sliceB="<<sliceB<<std::endl;
+
+//        std::cout<<"V2Total: rVec="<<rVec<<std::endl;
+
+        arma::dcolvec vecPart1 = coef2*arma::pow(rVec,2)+20*arma::pow(rVec,4);
+
+//        vecPart1.print("vecPart1");
+        double V2Last=std::pow(L-(xB(N-1)-xA(0))-a2,2)*coef2+20*std::pow(L-(xB(N-1)-xA(0))-a2,4);
+
+//        std::cout<<"V2Last="<<V2Last<<std::endl;
+
+        double val = arma::sum(vecPart1) + V2Last;
+//        std::cout<<"V2Total="<<val<<std::endl;
+
+        return val;
+
+    }
+
+
+
+
+    double dVEst(const double &r, const unsigned long long &N)const{
+        double val=0;
+        return val;
+
+    }
+
+public:
+    double a1 ;
+    double a2 ;
+
+    double r0;// eq distance
+
+    double coef1;
+    double coef2;
+
+};
 
 class version1Quadratic {
 public:
@@ -298,8 +400,8 @@ public:
 //    int moveNumInOneFlush = 3000;// flush the results to python every moveNumInOneFlush iterations
 //    int flushMaxNum = 7000;
 
-   static const unsigned long long loopMax=30000;//3000*6000;//max number of loop to reach equilibrium
-    static const unsigned long  long loopToWrite=5000;
+   static const unsigned long long loopMax=100000000;//3000*6000;//max number of loop to reach equilibrium
+    static const unsigned long  long loopToWrite=8000000;
 
     unsigned long long dataNumTotal = 2000;
     unsigned long long dataNumInEq=0;

@@ -126,6 +126,10 @@ public:
         }
     }
 
+
+
+    ///compute variance of position variables
+   void computeVar();
     ///compute correlation functions GAA
     void computeGAA();
 

@@ -74,3 +74,21 @@ print("x="+str(x))
 #
 # print(sol1)
 # print(sol2)
+
+def V1(r):
+    return alpha1/r**p1-beta1/r**q1+r**4
+
+def V2(r):
+    return alpha2/r**p2-beta2/r**q2+r**4
+
+def V(r):
+    return V1(r)+V2(r)
+# rValsAll=np.linspace(0.5*x,2*x,50)
+# VValsAll=[V(r) for r in rValsAll]
+#
+# import matplotlib.pyplot as plt
+#
+# plt.figure()
+# plt.plot(rValsAll,VValsAll,color="black")
+# plt.savefig("tmp.png")
+# plt.close()
