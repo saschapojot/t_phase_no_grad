@@ -154,10 +154,10 @@ def plt_theta(oneTFile):
         theta0AVec.append(-mB/mA*theta0BTmp-theta1ATmp-mB/mA*theta1BTmp)
     theta0AVec=np.array(theta0AVec)
 
-    d0A0BVec=[]
-    d0B1AVec=[]
-    d1A1BVec=[]
-    d1B0AVec=[]
+    x0AVec=[]
+    x0BVec=[]
+    x1AVec=[]
+    x1BVec=[]
 
     for i in range(0,len(rVec)):
         rTmp=rVec[i]
@@ -165,23 +165,53 @@ def plt_theta(oneTFile):
         theta0BTmp=theta0BVec[i]
         theta1ATmp=theta1AVec[i]
         theta1BTmp=theta1BVec[i]
+        x0AVec.append(rTmp*theta0ATmp)
+        x0BVec.append(rTmp*theta0BTmp)
+        x1AVec.append(rTmp*theta1ATmp)
+        x1BVec.append(rTmp*theta1BTmp)
 
+    d0A0BVec=[]
+    d0B1AVec=[]
+    d1A1BVec=[]
+    d1B0AVec=[]
+    for i in range(0,len(theta0BVec)):
+        rTmp=rVec[i]
+        theta0ATmp=theta0AVec[i]
+        theta0BTmp=theta0BVec[i]
+        theta1ATmp=theta1AVec[i]
+        theta1BTmp=theta1BVec[i]
         d0A0BVec.append(rTmp*(theta0BTmp-theta0ATmp))
-
         d0B1AVec.append(rTmp*(theta1ATmp-theta0BTmp))
-
         d1A1BVec.append(rTmp*(theta1BTmp-theta1ATmp))
-
         d1B0AVec.append(rTmp*(2*np.pi+theta0ATmp-theta1BTmp))
 
-
-    #summary of distance between neighboring points
+    # #summary of distance between neighboring points
     d0A0BMean=np.mean(d0A0BVec)
     d0B1AMean=np.mean(d0B1AVec)
     d1A1BMean=np.mean(d1A1BVec)
     d1B0AMean=np.mean(d1B0AVec)
-    smrDistFileName=oneTFile+"/distSummary.txt"
 
+    x0AMean=np.mean(x0AVec)
+    x0BMean=np.mean(x0BVec)
+    x1AMean=np.mean(x1AVec)
+    x1BMean=np.mean(x1BVec)
+
+    x0AVar=np.var(x0AVec,ddof=1)
+    x0BVar=np.var(x0BVec,ddof=1)
+    x1AVar=np.var(x1AVec,ddof=1)
+    x1BVar=np.var(x1BVec,ddof=1)
+
+    x0ASd=np.sqrt(x0AVar)
+    x0BSd=np.sqrt(x0BVar)
+    x1ASd=np.sqrt(x1AVar)
+    x1BSd=np.sqrt(x1BVar)
+
+
+
+
+
+    smrDistFileName=oneTFile+"/distSummary.txt"
+    #
     dist=[d0A0BMean,d0B1AMean,d1A1BMean,d1B0AMean]
     fptrTxt=open(smrDistFileName,"w")
     fptrTxt.write("T="+str(TVal)+"\n")
@@ -189,28 +219,13 @@ def plt_theta(oneTFile):
     fptrTxt.close()
 
 
+    pos_A=[x0AMean,x1AMean]
+    sd_A=[x0ASd,x1ASd]
+    pos_B=[x0BMean,x1BMean]
+    sd_B=[x0BSd,x1BSd]
 
-    d0A0BVar=np.var(d0A0BVec,ddof=1)
-    d0B1AVar=np.var(d0B1AVec,ddof=1)
-    d1A1BVar=np.var(d1A1BVec,ddof=1)
-    d1B0AVar=np.var(d1B0AVec,ddof=1)
-
-    d0A0BSd=np.sqrt(d0A0BVar)
-    d0B1ASd=np.sqrt(d0B1AVar)
-    d1A1BSd=np.sqrt(d1A1BVar)
-    d1B0ASd=np.sqrt(d1B0AVar)
-
-    distAll=[0,d0A0BMean,d0B1AMean,d1A1BMean,d1B0AMean]
-
-    posAll=np.cumsum(distAll)
-    pos_A=[posAll[i] for i in range(0,len(posAll),2)]
-    pos_B=[posAll[i] for i in range(1,len(posAll),2)]
-
-    sd_A=[d1B0ASd,d0B1ASd,d1B0ASd]
-
-    sd_B=[d0A0BSd,d1A1BSd]
-    print(sd_A)
-    print(sd_B)
+    print("sd_A="+str(sd_A))
+    print("sd_B="+str(sd_B))
 
     plt.figure(figsize=(12, 6))
     plt.ylim(-1, 1)
