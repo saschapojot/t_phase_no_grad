@@ -1,0 +1,173 @@
+//
+// Created by polya on 5/26/24.
+//
+
+#ifndef T_PHASE_NO_GRAD_PARSEPKL_HPP
+#define T_PHASE_NO_GRAD_PARSEPKL_HPP
+
+#include "version1RingQuadratic.hpp"
+
+//this subroutine parses xml or bin files, we parse bin files for speed
+class reader {
+
+public:
+    reader(const int &rowNum, const int &TInd, const unsigned long long &cellNum) {
+        this->cellNum = cellNum;
+        this->rowNum = rowNum;
+        this->TRoot = "./version1Data/1d/funcquadraticRing/row" + std::to_string(rowNum) + "/";
+        std::vector<std::string> sortedTDirs = scanTDirs(TRoot);
+        this->TDir = TRoot + "/" + sortedTDirs[TInd] + "/";
+        std::cout << "selected TDir=" << TDir << std::endl;
+        try {
+            this->UInOneFile = std::shared_ptr<double[]>(new double[version1RingQuadratic::loopMax],
+                                                         std::default_delete<double[]>());
+            this->db_inOneFile = std::shared_ptr<double[]>(new double[version1RingQuadratic::loopMax],
+                                                           std::default_delete<double[]>());
+        }
+        catch (const std::bad_alloc &e) {
+            std::cerr << "Memory allocation error: " << e.what() << std::endl;
+        } catch (const std::exception &e) {
+            std::cerr << "Exception: " << e.what() << std::endl;
+        }
+    }
+
+public:
+    ///
+    /// @param TPath path containing all T folders
+    /// @return T folder names sorted by T
+    std::vector<std::string> scanTDirs(const std::string &TPath) {
+        std::vector<std::string> TDirs;
+        std::string searchPath = TPath;
+        std::string TPattern = "T([+-]?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?)";
+        std::vector<double> TValsAll;
+
+        if (fs::exists(searchPath) && fs::is_directory(searchPath)) {
+            for (const auto &entry: fs::directory_iterator(searchPath)) {
+                if (entry.path().filename().string()[0] == 'T' and entry.path().filename().string()[1] != 'x') {
+                    TDirs.push_back(entry.path().filename().string());
+                    std::smatch matchT;
+                    if (std::regex_search(entry.path().filename().string(), matchT, std::regex(TPattern))) {
+                        double TVal = std::stod(matchT.str(1));
+                        TValsAll.push_back(TVal);
+                    }
+                }
+            }
+        }
+
+        std::vector<size_t> inds = argsort(TValsAll);
+        std::vector<std::string> sortedFiles;
+        for (const auto &i: inds) {
+            sortedFiles.push_back(TDirs[i]);
+        }
+
+        return sortedFiles;
+
+
+    }//end function scanTDirs
+
+
+
+    template<class T>
+    std::vector<size_t> argsort(const std::vector<T> &v) {
+        std::vector<size_t> idx(v.size());
+        std::iota(idx.begin(), idx.end(), 0);
+        std::stable_sort(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) { return v[i1] <= v[i2]; });
+        return idx;
+    }
+
+    template<class T>
+    static void printVec(const std::vector<T> &vec) {
+        for (int i = 0; i < vec.size() - 1; i++) {
+            std::cout << vec[i] << ",";
+        }
+        std::cout << vec[vec.size() - 1] << std::endl;
+    }
+
+    ///UAll, xA_All, xB_All folder's files
+    void searchFiles();
+
+
+    ///
+    /// @param path the path containing xml files
+    /// @return sorted bin files by starting loop or end loop
+    std::vector<std::string> sortOneDir(const std::vector<std::string> &allFiles);
+
+    ///sort files by starting loop
+    void sortFiles();
+
+    void parseSummary();
+
+    ///
+    /// @param filename file name
+    /// @param values values in file
+    /// @param number_of_values number of values
+    bool loadMsgFile(const std::string &filename, std::shared_ptr<double[]> &values, size_t &number_of_values);
+
+
+    unsigned long long loadU();
+
+   unsigned long long load_r();
+   unsigned long long load_theta0B();
+    unsigned long long load_theta1A();
+
+    unsigned long long load_theta1B();
+
+
+    ///data to json, json as input to plot
+    void data2json();
+
+
+
+    static void printMat(const arma::dmat &mat, std::ostream &os) {
+        int n = mat.n_rows;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n - 1; j++) {
+                os << mat(i, j) << ",";
+            }
+            os << mat(i, n - 1) << std::endl;
+        }
+    }
+
+
+
+
+
+public:
+    int TInd;
+    std::string TDir;
+    std::string TRoot;
+    int rowNum;
+    unsigned long long cellNum;
+    std::string UPath;
+    std::string rPath;
+    std::string theta0BPath;
+    std::string theta1APath;
+    std::string theta1BPath;
+
+    unsigned long long nEqCounterStart = 0;
+    unsigned long long lagEst = 0;
+
+    std::vector<std::string> UFilesAll;
+    std::vector<std::string> rFilesAll;
+    std::vector<std::string> theta0BFilesAll;
+    std::vector<std::string> theta1AFilesAll;
+    std::vector<std::string> theta1BFilesAll;
+
+    std::vector<std::string> sorted_UFilesAll;
+    std::vector<std::string> sorted_rFilesAll;
+    std::vector<std::string> sorted_theta0BFilesAll;
+    std::vector<std::string> sorted_theta1AFilesAll;
+    std::vector<std::string> sorted_theta1BFilesAll;
+
+    std::shared_ptr<double[]> UInOneFile;
+    std::shared_ptr<double[]> db_inOneFile;
+
+    std::shared_ptr<double[]> USelected;
+    std::shared_ptr<double[]> r_selected;
+    std::shared_ptr<double[]> theta0B_selected;
+    std::shared_ptr<double[]> theta1A_selected;
+    std::shared_ptr<double[]> theta1B_selected;
+
+
+};
+#endif //T_PHASE_NO_GRAD_PARSEPKL_HPP

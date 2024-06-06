@@ -71,8 +71,8 @@ else:
         selectedFromPart1=vecValsToCompute[lenPart:]
         result = ks_2samp(selectedFromPart0, selectedFromPart1)
         numDataPoints=len(selectedFromPart0)+len(selectedFromPart1)
-        print("len(selectedFromPart0)="+str(len(selectedFromPart0)))
-        print("len(selectedFromPart1)="+str(len(selectedFromPart1)))
+        # print("len(selectedFromPart0)="+str(len(selectedFromPart0)))
+        # print("len(selectedFromPart1)="+str(len(selectedFromPart1)))
         msg="lag="+str(lagVal)+"\n"+"K-S statistic: "+str(result.statistic)+"\n"+"P-value: "+str(result.pvalue)+"\n"\
             +"numDataPoints="+str(numDataPoints)+"\n"+"nCounterStart="+str(startingLoop)+"\n"
         if result.pvalue>0.1 and numDataPoints>200:
@@ -80,6 +80,7 @@ else:
             print(msg)
             exit()
         else:
+            print(msg)
             print(sigContinue)
             exit()
 
