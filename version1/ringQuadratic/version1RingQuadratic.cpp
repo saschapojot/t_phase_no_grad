@@ -112,35 +112,19 @@ double version1RingQuadratic::f(const double &r, const double &theta0B, const do
 /// @param theta1ANext
 /// @param theta1BNext
 void version1RingQuadratic::proposal(const double &rCurr,const double&theta0BCurr, const double& theta1ACurr,const double &theta1BCurr,
-                                     double & rNext, double &theta0BNext, double &theta1ANext, double &theta1BNext){
+                                     double & rNext, double &theta0BNext, double &theta1ANext, double &theta1BNext) {
 
-//    std::random_device rd;
-//    std::ranlux24_base gen(rd());
 
-    //next theta0B
-//    std::normal_distribution<double> dTmpTheta0B(theta0BCurr,stddev);
-//    theta0BNext=dTmpTheta0B(gen);
-//    theta0BNext=std::fmod(theta0BNext,2*PI);
-theta0BNext= generate_nearby_0_2pi(theta0BCurr,stddev);
+    theta0BNext = generate_nearby_0_2pi(theta0BCurr, stddev);
 
-    //next theta1A
-//    std::normal_distribution<double> dTmpTheta1A(theta1ACurr,stddev);
-//    theta1ANext=dTmpTheta1A(gen);
-//    theta1ANext=std::fmod(theta1ANext,2*PI);
-    theta1ANext= generate_nearby_0_2pi(theta1ACurr,stddev);
+    theta1ANext = generate_nearby_0_2pi(theta1ACurr, stddev);
 
-    //next theta1B
-//    std::normal_distribution<double> dTmpTheta1B(theta1BCurr,stddev);
-//    theta1BNext=dTmpTheta1B(gen);
-//    theta1BNext=std::fmod(theta1BNext,2*PI);
-theta1BNext= generate_nearby_0_2pi(theta1BNext,stddev);
+
+    theta1BNext = generate_nearby_0_2pi(theta1BCurr, stddev);
 
     //next r
 
-    rNext= generate_nearby_positive_value(rCurr,stddev);
-
-
-
+    rNext = generate_nearby_positive_value(rCurr, stddev);
 
 
 }
