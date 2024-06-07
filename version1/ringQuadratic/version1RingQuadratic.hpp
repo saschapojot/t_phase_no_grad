@@ -27,6 +27,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <math.h>
 #include <memory>
 #include <msgpack.hpp>
 #include <random>
@@ -37,21 +38,21 @@
 #include <vector>
 
 namespace fs = boost::filesystem;
-const auto PI=std::numbers::pi;
+const auto PI=M_PI;
 //this subroutine computes the mc evolution for a 1d system, 2-atom, quadratic potential +PBC
 
 class potentialFunction {
     //base class for potential function
 public:
     potentialFunction (const double &a1Val, const double &a2Val, const double& coef1Val, const double& coef2Val, const double &mAVal, const double &mBVal) {
-    this->a1=a1Val;
-    this->a2=a2Val;
+        this->a1=a1Val;
+        this->a2=a2Val;
 
-    this->coef1=coef1Val;
-    this->coef2=coef2Val;
+        this->coef1=coef1Val;
+        this->coef2=coef2Val;
 
-    this->mA=mAVal;
-    this->mB=mBVal;
+        this->mA=mAVal;
+        this->mB=mBVal;
 
     }//end of constructor
     virtual double operator()(const double&r, const double &theta0B, const double& theta1A, const double& theta1B) const = 0;
@@ -97,14 +98,14 @@ public:
     /// @param xB positions of atom B
     /// @return potential energy
     double operator()(const double&r, const double &theta0B, const double& theta1A, const double& theta1B) const override {
-      double d0A0B=r*((1+mB/mA)*theta0B+theta1A+mB/mA*theta1B);
-      double d0B1A=r*(theta1A-theta0B);
-      double d1A1B=r*(theta1B-theta1A);
+        double d0A0B=r*((1+mB/mA)*theta0B+theta1A+mB/mA*theta1B);
+        double d0B1A=r*(theta1A-theta0B);
+        double d1A1B=r*(theta1B-theta1A);
 
-      double d1B0A=r*(2*PI+(-1-mB/mA)*theta1B-mB/mA*theta0B-theta1A);
+        double d1B0A=r*(2*PI+(-1-mB/mA)*theta1B-mB/mA*theta0B-theta1A);
 
-      double val=coef1*std::pow(d0A0B-a1,2)+coef2*std::pow(d0B1A-a2,2)
-              +coef1*std::pow(d1A1B-a1,2)+coef2*std::pow(d1B0A-a2,2);
+        double val=coef1*std::pow(d0A0B-a1,2)+coef2*std::pow(d0B1A-a2,2)
+                   +coef1*std::pow(d1A1B-a1,2)+coef2*std::pow(d1B0A-a2,2);
 //        std::cout<<"val="<<val<<std::endl;
         return val;
 
@@ -138,7 +139,7 @@ public:
 class version1RingQuadratic {
 public:
     version1RingQuadratic (int rowNum, double temperature, unsigned long long cellNum,
-                        const std::shared_ptr<potentialFunction> &funcPtr) {
+                           const std::shared_ptr<potentialFunction> &funcPtr) {
 
         this->rowNum = rowNum;
         this->T = temperature;
@@ -160,7 +161,7 @@ public:
 //        if (stepSize>0.005){
 //            stepSize=0.005;
 //        }
-        this->h=0.01;//stepSize;
+        this->h=0.5;//stepSize;
 
 
         std::cout<<"h="<<h<<std::endl;
@@ -197,12 +198,12 @@ public:
     static std::string execPython(const char *cmd);
 
 
-   ///
-   /// @param r
-   /// @param theta0B
-   /// @param theta1A
-   /// @param theta1B
-   /// @return
+    ///
+    /// @param r
+    /// @param theta0B
+    /// @param theta1A
+    /// @param theta1B
+    /// @return
     double f(const double &r, const double &theta0B, const double&theta1A, const double&theta1B);
 
     ///
@@ -222,6 +223,19 @@ public:
         return rNext;
     }
 
+    static double generate_nearby_0_2pi(const double& theta, const double& sigma){
+        std::random_device rd;  // Random number generator
+        std::mt19937 gen(rd()); // Mersenne Twister engine
+        std::normal_distribution<> d(theta, sigma); // Normal distribution with mean rCurr and standard deviation sigma
+        double thetaNext;
+        do {
+            thetaNext = d(gen);
+//            std::cout<<"generated value/2pi: "<<thetaNext<<std::endl;
+        } while (thetaNext < 0 or thetaNext>2*PI); // Ensure the generated value is positive
+
+        return thetaNext;
+
+    }
     ///
     /// @param rCurr
     /// @param theta0BCurr
@@ -248,26 +262,26 @@ public:
                            const double &rNext, const double &theta0BNext, const double &theta1ANext, const double &theta1BNext);
 
 
-   ///
-   /// @param rInit
-   /// @param theta0BInit
-   /// @param theta1AInit
-   /// @param theta1BInit
+    ///
+    /// @param rInit
+    /// @param theta0BInit
+    /// @param theta1AInit
+    /// @param theta1BInit
     void initPositionsEquiDistance(double &rInit, double &theta0BInit,  double &theta1AInit, double &theta1BInit);
 
-   ///
-   /// @param lag
-   /// @param loopEq
-   /// @param same
-   /// @param rLast
-   /// @param theta0BLast
-   /// @param theta1ALast
-   /// @param theta1BLast
-   /// @param U_ptr
-   /// @param r_ptr
-   /// @param theta0B_ptr
-   /// @param theta1A_ptr
-   /// @param theta1B_ptr
+    ///
+    /// @param lag
+    /// @param loopEq
+    /// @param same
+    /// @param rLast
+    /// @param theta0BLast
+    /// @param theta1ALast
+    /// @param theta1BLast
+    /// @param U_ptr
+    /// @param r_ptr
+    /// @param theta0B_ptr
+    /// @param theta1A_ptr
+    /// @param theta1B_ptr
     void readEqMc(unsigned long long &lag,  unsigned long long &loopEq,bool &equilibrium, bool& same, double &rLast,
                   double &theta0BLast,  double &theta1ALast, double &theta1BLast,double * U_ptr,double *r_ptr, double *theta0B_ptr, double *theta1A_ptr, double * theta1B_ptr);
 
@@ -296,7 +310,7 @@ public:
 //    int moveNumInOneFlush = 3000;// flush the results to python every moveNumInOneFlush iterations
 //    int flushMaxNum = 7000;
 
-   static const unsigned long long loopMax=100000000;//3000*6000;//max number of loop to reach equilibrium
+    static const unsigned long long loopMax=100000000;//3000*6000;//max number of loop to reach equilibrium
     static const unsigned long  long loopToWrite=8000000;
 
     unsigned long long dataNumTotal = 2000;
