@@ -6,8 +6,8 @@
 
 void version1InsideLQuadratic::parseCSV(const int &rowNum, double &a1, double &a2, double &c1, double &c2,double &mA, double &mB) {
 
-    std::string filePath = "./version1Input/1d/ringQuadratic/ringQuadratic.csv";
-    std::string pyFile = "./version1/ringQuadratic/readCSV.py";
+    std::string filePath = "./version1Input/1d/insideLQuadratic/insideLQuadratic.csv";
+    std::string pyFile = "./version1/insideLQuadratic/readCSV.py";
     std::string commandToReadCSV = "python3 " + pyFile + " " + filePath + " " + std::to_string(rowNum);
 
     std::string result = execPython(commandToReadCSV.c_str());

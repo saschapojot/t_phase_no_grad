@@ -121,7 +121,7 @@ def pltU(oneTFile):
     plt.close()
 
 
-def plt_theta(oneTFile):
+def plt_x(oneTFile):
     """
 
     :param oneTFile: corresponds to one temperature
@@ -130,60 +130,48 @@ def plt_theta(oneTFile):
     matchT=re.search(r"T(\d+(\.\d+)?)",oneTFile)
     TVal=float(matchT.group(1))
 
-    thetaFilePath=oneTFile+"/jsonData/jsontheta/thetaData.json"
+    xFilePath=oneTFile+"/jsonData/jsonx/xData.json"
 
-    with open (thetaFilePath,"r") as fptr:
-        thetaData=json.load(fptr)
+    with open (xFilePath,"r") as fptr:
+        xData=json.load(fptr)
 
-    theta0BVec=thetaData["theta0B"]
-    theta1AVec=thetaData["theta1A"]
-    theta1BVec=thetaData["theta1B"]
+    x0BVec=xData["x0B"]
+    x1AVec=xData["x1A"]
+    x1BVec=xData["x1B"]
 
 
-    rFilePath=oneTFile+"/jsonData/jsonr/rData.json"
-    with open(rFilePath,"r") as fptr:
-        rData=json.load(fptr)
+    LFilePath=oneTFile+"/jsonData/jsonL/LData.json"
+    with open(LFilePath,"r") as fptr:
+        LData=json.load(fptr)
 
-    rVec=rData["r"]
-
-    theta0AVec=[]
-    for i in range(0,len(theta0BVec)):
-        theta0BTmp=theta0BVec[i]
-        theta1ATmp=theta1AVec[i]
-        theta1BTmp=theta1BVec[i]
-        theta0AVec.append(-mB/mA*theta0BTmp-theta1ATmp-mB/mA*theta1BTmp)
-    theta0AVec=np.array(theta0AVec)
+    LVec=LData["L"]
 
     x0AVec=[]
-    x0BVec=[]
-    x1AVec=[]
-    x1BVec=[]
+    for i in range(0,len(x0BVec)):
+        x0BTmp=x0BVec[i]
+        x1ATmp=x1AVec[i]
+        x1BTmp=x1BVec[i]
+        x0AVec.append(-mB/mA*x0BTmp-x1ATmp-mB/mA*x1BTmp)
+    x0AVec=np.array(x0AVec)
 
-    for i in range(0,len(rVec)):
-        rTmp=rVec[i]
-        theta0ATmp=theta0AVec[i]
-        theta0BTmp=theta0BVec[i]
-        theta1ATmp=theta1AVec[i]
-        theta1BTmp=theta1BVec[i]
-        x0AVec.append(rTmp*theta0ATmp)
-        x0BVec.append(rTmp*theta0BTmp)
-        x1AVec.append(rTmp*theta1ATmp)
-        x1BVec.append(rTmp*theta1BTmp)
+
+
+
 
     d0A0BVec=[]
     d0B1AVec=[]
     d1A1BVec=[]
     d1B0AVec=[]
-    for i in range(0,len(theta0BVec)):
-        rTmp=rVec[i]
-        theta0ATmp=theta0AVec[i]
-        theta0BTmp=theta0BVec[i]
-        theta1ATmp=theta1AVec[i]
-        theta1BTmp=theta1BVec[i]
-        d0A0BVec.append(rTmp*(theta0BTmp-theta0ATmp))
-        d0B1AVec.append(rTmp*(theta1ATmp-theta0BTmp))
-        d1A1BVec.append(rTmp*(theta1BTmp-theta1ATmp))
-        d1B0AVec.append(rTmp*(2*np.pi+theta0ATmp-theta1BTmp))
+    for i in range(0,len(x0BVec)):
+        x0ATmp=x0AVec[i]
+        x0BTmp=x0BVec[i]
+        x1ATmp=x1AVec[i]
+        x1BTmp=x1BVec[i]
+        LTmp=LVec[i]
+        d0A0BVec.append(x0BTmp-x0ATmp)
+        d0B1AVec.append(x1ATmp-x0BTmp)
+        d1A1BVec.append(x1BTmp-x1ATmp)
+        d1B0AVec.append(x0ATmp-x1BTmp+LTmp)
 
     # #summary of distance between neighboring points
     d0A0BMean=np.mean(d0A0BVec)
@@ -213,10 +201,16 @@ def plt_theta(oneTFile):
     smrDistFileName=oneTFile+"/distSummary.txt"
     #
     dist=[d0A0BMean,d0B1AMean,d1A1BMean,d1B0AMean]
+    pos_AB=[x0AMean,x0BMean,x1AMean,x1BMean]
+    sd_AB=[x0ASd,x0BSd,x1ASd,x1BSd]
     fptrTxt=open(smrDistFileName,"w")
     fptrTxt.write("T="+str(TVal)+"\n")
-    fptrTxt.write("position: "+str(dist)+"\n")
+    fptrTxt.write("dist: "+str(dist)+"\n")
+    fptrTxt.write("positions x0A, x0B, x1A, x1B: "+str(pos_AB)+"\n")
+    fptrTxt.write("var x0A, x0B, x1A, x1B: "+str(sd_AB)+"\n")
     fptrTxt.close()
+
+
 
 
     pos_A=[x0AMean,x1AMean]
@@ -261,7 +255,7 @@ def plt_theta(oneTFile):
 tStatsStart=datetime.now()
 for oneTFile in sortedTFiles:
     pltU(oneTFile)
-    plt_theta(oneTFile)
+    plt_x(oneTFile)
 
 tStatsEnd=datetime.now()
 print("stats total time: ",tStatsEnd-tStatsStart)
