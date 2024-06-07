@@ -106,11 +106,11 @@ public:
 
     unsigned long long loadU();
 
-   unsigned long long load_r();
-   unsigned long long load_theta0B();
-    unsigned long long load_theta1A();
+   unsigned long long load_L();
+   unsigned long long load_x0B();
+    unsigned long long load_x1A();
 
-    unsigned long long load_theta1B();
+    unsigned long long load_x1B();
 
 
     ///data to json, json as input to plot
@@ -139,34 +139,34 @@ public:
     int rowNum;
     unsigned long long cellNum;
     std::string UPath;
-    std::string rPath;
-    std::string theta0BPath;
-    std::string theta1APath;
-    std::string theta1BPath;
+    std::string LPath;
+    std::string x0BPath;
+    std::string x1APath;
+    std::string x1BPath;
 
     unsigned long long nEqCounterStart = 0;
     unsigned long long lagEst = 0;
 
     std::vector<std::string> UFilesAll;
-    std::vector<std::string> rFilesAll;
-    std::vector<std::string> theta0BFilesAll;
-    std::vector<std::string> theta1AFilesAll;
-    std::vector<std::string> theta1BFilesAll;
+    std::vector<std::string> LFilesAll;
+    std::vector<std::string> x0BFilesAll;
+    std::vector<std::string> x1AFilesAll;
+    std::vector<std::string> x1BFilesAll;
 
     std::vector<std::string> sorted_UFilesAll;
-    std::vector<std::string> sorted_rFilesAll;
-    std::vector<std::string> sorted_theta0BFilesAll;
-    std::vector<std::string> sorted_theta1AFilesAll;
-    std::vector<std::string> sorted_theta1BFilesAll;
+    std::vector<std::string> sorted_LFilesAll;
+    std::vector<std::string> sorted_x0BFilesAll;
+    std::vector<std::string> sorted_x1AFilesAll;
+    std::vector<std::string> sorted_x1BFilesAll;
 
     std::shared_ptr<double[]> UInOneFile;
     std::shared_ptr<double[]> db_inOneFile;
 
     std::shared_ptr<double[]> USelected;
-    std::shared_ptr<double[]> r_selected;
-    std::shared_ptr<double[]> theta0B_selected;
-    std::shared_ptr<double[]> theta1A_selected;
-    std::shared_ptr<double[]> theta1B_selected;
+    std::shared_ptr<double[]> L_selected;
+    std::shared_ptr<double[]> x0B_selected;
+    std::shared_ptr<double[]> x1A_selected;
+    std::shared_ptr<double[]> x1B_selected;
 
 
 };

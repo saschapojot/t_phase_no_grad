@@ -55,7 +55,7 @@ public:
         this->mB=mBVal;
 
     }//end of constructor
-    virtual double operator()(const double&r, const double &theta0B, const double& theta1A, const double& theta1B) const = 0;
+    virtual double operator()(const double&L, const double &x0B, const double& x1A, const double& x1B) const = 0;
     virtual double dVEst(const double &r, const unsigned long long &N)const = 0;
     virtual ~ potentialFunction() {};
 
@@ -88,8 +88,8 @@ public:
         this->mA=mAVal;
         this->mB=mBVal;
 
-//        std::cout<<"a1="<<this->a1<<", a2="<<this->a2<<", c1="<<this->coef1<<", c2="<<coef2<<std::endl;
-
+        std::cout<<"a1="<<this->a1<<", a2="<<this->a2<<", c1="<<this->coef1<<", c2="<<coef2<<std::endl;
+        std::cout<<"mA="<<mA<<", mB="<<mB<<std::endl;
     }//end of constructor
 
 public:
@@ -97,12 +97,13 @@ public:
     /// @param xA positions of atom A
     /// @param xB positions of atom B
     /// @return potential energy
-    double operator()(const double&r, const double &theta0B, const double& theta1A, const double& theta1B) const override {
-        double d0A0B=r*((1+mB/mA)*theta0B+theta1A+mB/mA*theta1B);
-        double d0B1A=r*(theta1A-theta0B);
-        double d1A1B=r*(theta1B-theta1A);
+    double operator()(const double&L, const double &x0B, const double& x1A, const double& x1B) const override {
+        double x0A=-mB/mA*x0B-x1A-mB/mA*x1B;
+        double d0A0B=x0B-x0A;
+        double d0B1A=x1A-x0B;
+        double d1A1B=x1B-x1A;
 
-        double d1B0A=r*(2*PI+(-1-mB/mA)*theta1B-mB/mA*theta0B-theta1A);
+        double d1B0A=x0A-x1B+L;
 
         double val=coef1*std::pow(d0A0B-a1,2)+coef2*std::pow(d0B1A-a2,2)
                    +coef1*std::pow(d1A1B-a1,2)+coef2*std::pow(d1B0A-a2,2);
@@ -199,91 +200,92 @@ public:
 
 
     ///
-    /// @param r
-    /// @param theta0B
-    /// @param theta1A
-    /// @param theta1B
+    /// @param L
+    /// @param x0B
+    /// @param x1A
+    /// @param x1B
     /// @return
-    double f(const double &r, const double &theta0B, const double&theta1A, const double&theta1B);
+    double f(const double &L, const double &x0B, const double&x1A, const double&x1B);
 
     ///
     /// @param rCurr
     /// @param sigma
     /// @return
-    static double generate_nearby_positive_value(const double& rCurr, const double& sigma) {
+    static double generate_nearby_positive_value(const double& LCurr, const double& sigma) {
         std::random_device rd;  // Random number generator
         std::mt19937 gen(rd()); // Mersenne Twister engine
-        std::normal_distribution<> d(rCurr, sigma); // Normal distribution with mean rCurr and standard deviation sigma
+        std::normal_distribution<> d(LCurr, sigma); // Normal distribution with mean rCurr and standard deviation sigma
 
-        double rNext;
+        double LNext;
         do {
-            rNext = d(gen);
-        } while (rNext <= 0); // Ensure the generated value is positive
+            LNext = d(gen);
+        } while (LNext <= 0); // Ensure the generated value is positive
 
-        return rNext;
+        return LNext;
     }
 
-    static double generate_nearby_0_2pi(const double& theta, const double& sigma){
+    static double generate_nearby_0_L(const double& x, const double& sigma,const double &L){
         std::random_device rd;  // Random number generator
         std::mt19937 gen(rd()); // Mersenne Twister engine
-        std::normal_distribution<> d(theta, sigma); // Normal distribution with mean rCurr and standard deviation sigma
-        double thetaNext;
+        std::normal_distribution<> d(x, sigma); // Normal distribution with mean rCurr and standard deviation sigma
+        double xNext;
         do {
-            thetaNext = d(gen);
+            xNext = d(gen);
 //            std::cout<<"generated value/2pi: "<<thetaNext<<std::endl;
-        } while (thetaNext < 0 or thetaNext>2*PI); // Ensure the generated value is positive
+        } while (xNext < 0 or xNext>L); // Ensure the generated value is positive
 
-        return thetaNext;
+        return xNext;
 
     }
     ///
-    /// @param rCurr
-    /// @param theta0BCurr
-    /// @param theta1ACurr
-    /// @param theta1BCurr
-    /// @param rNext
-    /// @param theta0BNext
-    /// @param theta1ANext
-    /// @param theta1BNext
-    void proposal(const double &rCurr,const double&theta0BCurr, const double& theta1ACurr,const double &theta1BCurr,
-                  double & rNext, double &theta0BNext, double &theta1ANext, double &theta1BNext);
+    /// @param LCurr
+    /// @param x0BCurr
+    /// @param x1ACurr
+    /// @param x1BCurr
+    /// @param LNext
+    /// @param x0BNext
+    /// @param x1ANext
+    /// @param x1BNext
+    void proposal(const double &LCurr,const double&x0BCurr, const double& x1ACurr,const double &x1BCurr,
+                  double & LNext, double &x0BNext, double &x1ANext, double &x1BNext);
 
     ///
-    /// @param rCurr
-    /// @param theta0BCurr
-    /// @param theta1ACurr
-    /// @param theta1BCurr
-    /// @param rNext
-    /// @param theta0BNext
-    /// @param theta1ANext
-    /// @param theta1BNext
+    /// @param LCurr
+    /// @param x0BCurr
+    /// @param x1ACurr
+    /// @param x1BCurr
+    /// @param LNext
+    /// @param x0BNext
+    /// @param x1ANext
+    /// @param x1BNext
     /// @return
-    double acceptanceRatio(const double &rCurr, const double &theta0BCurr, const double& theta1ACurr, const double &theta1BCurr,
-                           const double &rNext, const double &theta0BNext, const double &theta1ANext, const double &theta1BNext);
+    double acceptanceRatio(const double &LCurr, const double &x0BCurr, const double& x1ACurr, const double &x1BCurr,
+                           const double &LNext, const double &x0BNext, const double &x1ANext, const double &x1BNext);
 
 
     ///
-    /// @param rInit
-    /// @param theta0BInit
-    /// @param theta1AInit
-    /// @param theta1BInit
-    void initPositionsEquiDistance(double &rInit, double &theta0BInit,  double &theta1AInit, double &theta1BInit);
+    /// @param LInit
+    /// @param x0BInit
+    /// @param x1AInit
+    /// @param x1BInit
+    void initPositionsEquiDistance(double &LInit, double &x0BInit,  double &x1AInit, double &x1BInit);
 
     ///
     /// @param lag
     /// @param loopEq
+    /// @param equilibrium
     /// @param same
-    /// @param rLast
-    /// @param theta0BLast
-    /// @param theta1ALast
-    /// @param theta1BLast
+    /// @param LLast
+    /// @param x0BLast
+    /// @param x1ALast
+    /// @param x1BLast
     /// @param U_ptr
-    /// @param r_ptr
-    /// @param theta0B_ptr
-    /// @param theta1A_ptr
-    /// @param theta1B_ptr
-    void readEqMc(unsigned long long &lag,  unsigned long long &loopEq,bool &equilibrium, bool& same, double &rLast,
-                  double &theta0BLast,  double &theta1ALast, double &theta1BLast,double * U_ptr,double *r_ptr, double *theta0B_ptr, double *theta1A_ptr, double * theta1B_ptr);
+    /// @param L_ptr
+    /// @param x0B_ptr
+    /// @param x1A_ptr
+    /// @param x1B_ptr
+    void readEqMc(unsigned long long &lag,  unsigned long long &loopTotal,bool &equilibrium, bool& same, double &LLast,
+                  double &x0BLast,  double &x1ALast, double &x1BLast,double * U_ptr,double *L_ptr, double *x0B_ptr, double *x1A_ptr, double * x1B_ptr);
 
 
 
@@ -291,17 +293,17 @@ public:
     ///
     /// @param lag
     /// @param loopEq
-    /// @param rInit
-    /// @param theta0BInit
-    /// @param theta1AInit
-    /// @param theta1BInit
+    /// @param LInit
+    /// @param x0BInit
+    /// @param x1AInit
+    /// @param x1BInit
     /// @param U_ptr
-    /// @param r_ptr
-    /// @param theta0B_ptr
-    /// @param theta1A_ptr
-    /// @param theta1B_ptr
-    void executionMCAfterEq(const unsigned long long &lag, const unsigned long long &loopEq, const double &rInit,
-                            const double &theta0BInit, const double &theta1AInit, const double &theta1BInit,double * U_ptr,double *r_ptr, double *theta0B_ptr, double *theta1A_ptr, double * theta1B_ptr);
+    /// @param L_ptr
+    /// @param x0B_ptr
+    /// @param x1A_ptr
+    /// @param x1B_ptr
+    void executionMCAfterEq(const unsigned long long &lag, const unsigned long long &loopEq, const double &LInit,
+                            const double &x0BInit, const double &x1AInit, const double &x1BInit,double * U_ptr,double *L_ptr, double *x0B_ptr, double *x1A_ptr, double * x1B_ptr);
 
 
 public:

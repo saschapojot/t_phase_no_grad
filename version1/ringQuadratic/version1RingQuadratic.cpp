@@ -94,59 +94,61 @@ std::string version1RingQuadratic::execPython(const char *cmd) {
 /// @param xB positions of atom B
 /// @param L total length
 /// @return beta*potential
-double version1RingQuadratic::f(const double &r, const double &theta0B, const double&theta1A, const double&theta1B){
-    return this->beta * ((*potFuncPtr)(r, theta0B,theta1A,theta1B));
+double version1RingQuadratic::f(const double &L, const double &x0B, const double&x1A, const double&x1B){
+    return this->beta * ((*potFuncPtr)(L,x0B,x1A,x1B));
 
+
+
+}
+
+///
+/// @param LCurr
+/// @param x0BCurr
+/// @param x1ACurr
+/// @param x1BCurr
+/// @param LNext
+/// @param x0BNext
+/// @param x1ANext
+/// @param x1BNext
+void version1RingQuadratic::proposal(const double &LCurr,const double&x0BCurr, const double& x1ACurr,const double &x1BCurr,
+                                     double & LNext, double &x0BNext, double &x1ANext, double &x1BNext) {
+
+
+    //next L
+    LNext=generate_nearby_positive_value(LCurr,stddev);
+
+    //x
+    //x0B
+
+    x0BNext=generate_nearby_0_L(x0BCurr,stddev,LNext);
+
+    //x1A
+    x1ANext= generate_nearby_0_L(x1ACurr,stddev,LNext);
+
+    //x1B
+    x1BNext= generate_nearby_0_L(x1BCurr,stddev,LNext);
 
 
 }
 
 
 ///
-/// @param rCurr
-/// @param theta0BCurr
-/// @param theta1ACurr
-/// @param theta1BCurr
-/// @param rNext
-/// @param theta0BNext
-/// @param theta1ANext
-/// @param theta1BNext
-void version1RingQuadratic::proposal(const double &rCurr,const double&theta0BCurr, const double& theta1ACurr,const double &theta1BCurr,
-                                     double & rNext, double &theta0BNext, double &theta1ANext, double &theta1BNext) {
-
-
-    theta0BNext = generate_nearby_0_2pi(theta0BCurr, stddev);
-
-    theta1ANext = generate_nearby_0_2pi(theta1ACurr, stddev);
-
-
-    theta1BNext = generate_nearby_0_2pi(theta1BCurr, stddev);
-
-    //next r
-
-    rNext = generate_nearby_positive_value(rCurr, stddev);
-
-
-}
-
-
-///
-/// @param rCurr
-/// @param theta0BCurr
-/// @param theta1ACurr
-/// @param theta1BCurr
-/// @param rNext
-/// @param theta0BNext
-/// @param theta1ANext
-/// @param theta1BNext
+/// @param LCurr
+/// @param x0BCurr
+/// @param x1ACurr
+/// @param x1BCurr
+/// @param LNext
+/// @param x0BNext
+/// @param x1ANext
+/// @param x1BNext
 /// @return
-double version1RingQuadratic::acceptanceRatio(const double &rCurr, const double &theta0BCurr, const double& theta1ACurr, const double &theta1BCurr,
-                                              const double &rNext, const double &theta0BNext, const double &theta1ANext, const double &theta1BNext){
+double version1RingQuadratic::acceptanceRatio(const double &LCurr, const double &x0BCurr, const double& x1ACurr, const double &x1BCurr,
+                                              const double &LNext, const double &x0BNext, const double &x1ANext, const double &x1BNext){
 
 
-    double numerator = -f(rNext, theta0BNext, theta1ANext, theta1BNext);
+    double numerator = -f(LNext, x0BNext, x1ANext, x1BNext);
 
-    double denominator = -f(rCurr,theta0BCurr,theta1ACurr,theta1BCurr);
+    double denominator = -f(LCurr,x0BCurr,x1ACurr,x1BCurr);
 //    double UCurr=(*potFuncPtr)(xA, xB,LCurr);
 //    double UNext=(*potFuncPtr)(zA, zB, LNext);
 //    std::cout<<"UCurr="<<UCurr<<", UNext="<<UNext<<std::endl;
@@ -159,19 +161,19 @@ double version1RingQuadratic::acceptanceRatio(const double &rCurr, const double 
 
 
 ///
-/// @param rInit
-/// @param theta0BInit
-/// @param theta1AInit
-/// @param theta1BInit
-void version1RingQuadratic::initPositionsEquiDistance(double &rInit, double &theta0BInit,  double &theta1AInit, double &theta1BInit){
+/// @param LInit
+/// @param x0BInit
+/// @param x1AInit
+/// @param x1BInit
+void version1RingQuadratic::initPositionsEquiDistance(double &LInit, double &x0BInit,  double &x1AInit, double &x1BInit){
     double a = 1.5;
-    rInit=2*a;
+    LInit=2*a;
 
-    theta0BInit=0.9*PI;
+    x0BInit=0.2*LInit;
 
-    theta1AInit=1*PI;
+    x1AInit=0.5*LInit;
 
-    theta1BInit=1.5*PI;
+    x1BInit=0.9*LInit;
 
 
 
@@ -181,17 +183,19 @@ void version1RingQuadratic::initPositionsEquiDistance(double &rInit, double &the
 ///
 /// @param lag
 /// @param loopEq
-/// @param rInit
-/// @param theta0BInit
-/// @param theta1AInit
-/// @param theta1BInit
+/// @param equilibrium
+/// @param same
+/// @param LLast
+/// @param x0BLast
+/// @param x1ALast
+/// @param x1BLast
 /// @param U_ptr
-/// @param r_ptr
-/// @param theta0B_ptr
-/// @param theta1A_ptr
-/// @param theta1B_ptr
-void version1RingQuadratic::readEqMc(unsigned long long &lag, unsigned long long &loopTotal,bool &equilibrium, bool& same, double &rLast,
-                                     double &theta0BLast,  double &theta1ALast, double &theta1BLast,double * U_ptr,double *r_ptr, double *theta0B_ptr, double *theta1A_ptr, double * theta1B_ptr ){
+/// @param L_ptr
+/// @param x0B_ptr
+/// @param x1A_ptr
+/// @param x1B_ptr
+void version1RingQuadratic::readEqMc(unsigned long long &lag,  unsigned long long &loopTotal,bool &equilibrium, bool& same, double &LLast,
+                                     double &x0BLast,  double &x1ALast, double &x1BLast,double * U_ptr,double *L_ptr, double *x0B_ptr, double *x1A_ptr, double * x1B_ptr){
 
     std::random_device rd;
     std::ranlux24_base e2(rd());
@@ -210,12 +214,12 @@ void version1RingQuadratic::readEqMc(unsigned long long &lag, unsigned long long
     std::string outUAllPickleSubDir = outDir + "UAllPickle/";
     std::string outUAllBinSubDir = outDir + "UAllBin/";
 
-    std::string out_r_AllBinSubDir = outDir + "r_AllBin/";
-    std::string out_theta0B_AllBinSubDir=outDir+"theta0B_AllBin/";
+    std::string out_L_AllBinSubDir = outDir + "L_AllBin/";
+    std::string out_x0B_AllBinSubDir=outDir+"x0B_AllBin/";
 
-    std::string out_theta1A_AllBinSubDir=outDir+"theta1A_AllBin/";
+    std::string out_x1A_AllBinSubDir=outDir+"x1A_AllBin/";
 
-    std::string out_theta1B_AllBinSubDir=outDir+"theta1B_AllBin/";
+    std::string out_x1B_AllBinSubDir=outDir+"x1B_AllBin/";
 
 
 
@@ -225,19 +229,19 @@ void version1RingQuadratic::readEqMc(unsigned long long &lag, unsigned long long
     if (!fs::is_directory(outUAllBinSubDir) || !fs::exists(outUAllBinSubDir)) {
         fs::create_directories(outUAllBinSubDir);
     }
-    if (!fs::is_directory(out_r_AllBinSubDir) || !fs::exists(out_r_AllBinSubDir)) {
-        fs::create_directories(out_r_AllBinSubDir);
+    if (!fs::is_directory(out_L_AllBinSubDir) || !fs::exists(out_L_AllBinSubDir)) {
+        fs::create_directories(out_L_AllBinSubDir);
     }
-    if (!fs::is_directory(out_theta0B_AllBinSubDir ) || !fs::exists(out_theta0B_AllBinSubDir )) {
-        fs::create_directories(out_theta0B_AllBinSubDir );
-    }
-
-    if (!fs::is_directory(out_theta1A_AllBinSubDir ) || !fs::exists(out_theta1A_AllBinSubDir )) {
-        fs::create_directories(out_theta1A_AllBinSubDir );
+    if (!fs::is_directory(out_x0B_AllBinSubDir ) || !fs::exists(out_x0B_AllBinSubDir )) {
+        fs::create_directories(out_x0B_AllBinSubDir );
     }
 
-    if (!fs::is_directory(out_theta1B_AllBinSubDir ) || !fs::exists(out_theta1B_AllBinSubDir )) {
-        fs::create_directories(out_theta1B_AllBinSubDir );
+    if (!fs::is_directory(out_x1A_AllBinSubDir ) || !fs::exists(out_x1A_AllBinSubDir )) {
+        fs::create_directories(out_x1A_AllBinSubDir );
+    }
+
+    if (!fs::is_directory(out_x1B_AllBinSubDir ) || !fs::exists(out_x1B_AllBinSubDir )) {
+        fs::create_directories(out_x1B_AllBinSubDir );
     }
 //    std::cout<<"loop total="<<loopMax<<std::endl;
     std::regex stopRegex("stop");
@@ -265,14 +269,14 @@ void version1RingQuadratic::readEqMc(unsigned long long &lag, unsigned long long
 
 
 
-    double rCurr;
-    double theta0BCurr;
-    double theta1ACurr;
-    double theta1BCurr;
+    double LCurr;
+    double x0BCurr;
+    double x1ACurr;
+    double x1BCurr;
 
 
-    this->initPositionsEquiDistance(rCurr,theta0BCurr,theta1ACurr,theta1BCurr);
-    double UCurr = (*potFuncPtr)(rCurr,theta0BCurr,theta1ACurr,theta1BCurr);
+    this->initPositionsEquiDistance(LCurr,x0BCurr,x1ACurr,x1BCurr);
+    double UCurr = (*potFuncPtr)(LCurr,x0BCurr,x1ACurr,x1BCurr);
     int lpNum=0;
     bool active = true;
     const auto tMCStart{std::chrono::steady_clock::now()};
@@ -281,22 +285,22 @@ void version1RingQuadratic::readEqMc(unsigned long long &lag, unsigned long long
 
     while(lpNum<this->loopMax and active==true){
         //propose a move
-        double rNext;
-        double theta0BNext;
-        double theta1ANext;
-        double theta1BNext;
+        double LNext;
+        double x0BNext;
+        double x1ANext;
+        double x1BNext;
 
-        proposal(rCurr,theta0BCurr,theta1ACurr,theta1BCurr,rNext,theta0BNext,theta1ANext,theta1BNext);
-        double r = acceptanceRatio(rCurr,theta0BCurr,theta1ACurr,theta1BCurr,rNext,theta0BNext,theta1ANext,theta1BNext);
+        proposal(LCurr,x0BCurr,x1ACurr,x1BCurr,LNext,x0BNext,x1ANext,x1BNext);
+        double r = acceptanceRatio(LCurr,x0BCurr,x1ACurr,x1BCurr,LNext,x0BNext,x1ANext,x1BNext);
         double u = distUnif01(e2);
 //        double UTmp=UCurr;
         if (u <= r) {
 //                std::cout<<"UCurr="<<UCurr<<std::endl;
-            rCurr=rNext;
-            theta0BCurr=theta0BNext;
-            theta1ACurr=theta1ANext;
-            theta1BCurr=theta1BNext;
-            UCurr = (*potFuncPtr)(rCurr,theta0BCurr,theta1ACurr,theta1BCurr);
+            LCurr=LNext;
+            x0BCurr=x0BNext;
+            x1ACurr=x1ANext;
+            x1BCurr=x1BNext;
+            UCurr = (*potFuncPtr)(LCurr,x0BCurr,x1ACurr,x1BCurr);
 //                std::cout<<"UNext="<<UCurr<<std::endl;
 //            double UDiff=UCurr-UTmp;
 //            std::cout<<"UDiff="<<UDiff<<std::endl;
@@ -304,10 +308,10 @@ void version1RingQuadratic::readEqMc(unsigned long long &lag, unsigned long long
         }//end of accept-reject
 
         U_ptr[lpNum]=UCurr;
-        r_ptr[lpNum]=rCurr;
-        theta0B_ptr[lpNum]=theta0BCurr;
-        theta1A_ptr[lpNum]=theta1ACurr;
-        theta1B_ptr[lpNum]=theta1BCurr;
+        L_ptr[lpNum]=LCurr;
+        x0B_ptr[lpNum]=x0BCurr;
+        x1A_ptr[lpNum]=x1ACurr;
+        x1B_ptr[lpNum]=x1BCurr;
 
         //write to file every loopToWrite loops, and inquire equilibrium
         if ((lpNum+1)%loopToWrite==0 and lpNum>1){
@@ -322,17 +326,17 @@ void version1RingQuadratic::readEqMc(unsigned long long &lag, unsigned long long
             save_to_bin_file(U_ptr,sizeOfArray,outUBinFileName);
 
 
-            std::string out_r_BinFileName=out_r_AllBinSubDir+filenameMiddle+".r.bin";
-            save_to_bin_file(r_ptr,sizeOfArray,out_r_BinFileName);
+            std::string out_L_BinFileName=out_L_AllBinSubDir+filenameMiddle+".L.bin";
+            save_to_bin_file(L_ptr,sizeOfArray,out_L_BinFileName);
 
-            std::string out_theta0B_BinFileName=out_theta0B_AllBinSubDir+filenameMiddle+".theta0B_All.bin";
-            save_to_bin_file(theta0B_ptr,sizeOfArray,out_theta0B_BinFileName);
+            std::string out_x0B_BinFileName=out_x0B_AllBinSubDir+filenameMiddle+".x0B_All.bin";
+            save_to_bin_file(x0B_ptr,sizeOfArray,out_x0B_BinFileName);
 
-            std::string out_theta1A_BinFileName=out_theta1A_AllBinSubDir+filenameMiddle+".theta1A_All.bin";
-            save_to_bin_file(theta1A_ptr,sizeOfArray,out_theta1A_BinFileName);
+            std::string out_x1A_BinFileName=out_x1A_AllBinSubDir+filenameMiddle+".x1A_All.bin";
+            save_to_bin_file(x1A_ptr,sizeOfArray,out_x1A_BinFileName);
 
-            std::string out_theta1B_BinFileName=out_theta1B_AllBinSubDir+filenameMiddle+".theta1B_All.bin";
-            save_to_bin_file(theta1B_ptr,sizeOfArray,out_theta1B_BinFileName);
+            std::string out_x1B_BinFileName=out_x1B_AllBinSubDir+filenameMiddle+".x1B_All.bin";
+            save_to_bin_file(x1B_ptr,sizeOfArray,out_x1B_BinFileName);
 
             const auto tWriteEnd{std::chrono::steady_clock::now()};
 
@@ -434,10 +438,10 @@ void version1RingQuadratic::readEqMc(unsigned long long &lag, unsigned long long
 
     }//end while
 
-    rLast=rCurr;
-    theta0BLast=theta0BCurr;
-    theta1ALast=theta1ACurr;
-    theta1BLast=theta1BCurr;
+    LLast=LCurr;
+    x0BLast=x0BCurr;
+    x1ALast=x1ACurr;
+    x1BLast=x1BCurr;
 
     equilibrium = !active;
     loopTotal=lpNum;
@@ -463,17 +467,17 @@ void version1RingQuadratic::readEqMc(unsigned long long &lag, unsigned long long
 ///
 /// @param lag
 /// @param loopEq
-/// @param rInit
-/// @param theta0BInit
-/// @param theta1AInit
-/// @param theta1BInit
+/// @param LInit
+/// @param x0BInit
+/// @param x1AInit
+/// @param x1BInit
 /// @param U_ptr
-/// @param r_ptr
-/// @param theta0B_ptr
-/// @param theta1A_ptr
-/// @param theta1B_ptr
-void version1RingQuadratic::executionMCAfterEq(const unsigned long long &lag, const unsigned long long &loopEq, const double &rInit,
-                                               const double &theta0BInit, const double &theta1AInit, const double &theta1BInit,double * U_ptr,double *r_ptr, double *theta0B_ptr, double *theta1A_ptr, double * theta1B_ptr ) {
+/// @param L_ptr
+/// @param x0B_ptr
+/// @param x1A_ptr
+/// @param x1B_ptr
+void version1RingQuadratic::executionMCAfterEq(const unsigned long long &lag, const unsigned long long &loopEq, const double &LInit,
+                                               const double &x0BInit, const double &x1AInit, const double &x1BInit,double * U_ptr,double *L_ptr, double *x0B_ptr, double *x1A_ptr, double * x1B_ptr) {
 
 
     if (dataNumTotal <= dataNumInEq) {
@@ -492,13 +496,13 @@ void version1RingQuadratic::executionMCAfterEq(const unsigned long long &lag, co
 
 
 
-    double rCurr(rInit);
-    double theta0BCurr(theta0BInit);
-    double theta1ACurr(theta1AInit);
-    double theta1BCurr(theta1BInit);
+    double LCurr(LInit);
+    double x0BCurr(x0BInit);
+    double x1ACurr(x1AInit);
+    double x1BCurr(x1BInit);
 
 
-    double UCurr = (*potFuncPtr)(rCurr,theta0BCurr,theta1ACurr,theta1BCurr);
+    double UCurr = (*potFuncPtr)(LCurr,x0BCurr,x1ACurr,x1BCurr);
     std::random_device rd;
     std::ranlux24_base e2(rd());
     std::uniform_real_distribution<> distUnif01(0, 1);//[0,1)
@@ -515,12 +519,12 @@ void version1RingQuadratic::executionMCAfterEq(const unsigned long long &lag, co
     std::string outUAllPickleSubDir = outDir + "UAllPickle/";
     std::string outUAllBinSubDir = outDir + "UAllBin/";
 
-    std::string out_r_AllBinSubDir = outDir + "r_AllBin/";
-    std::string out_theta0B_AllBinSubDir=outDir+"theta0B_AllBin/";
+    std::string out_L_AllBinSubDir = outDir + "L_AllBin/";
+    std::string out_x0B_AllBinSubDir=outDir+"x0B_AllBin/";
 
-    std::string out_theta1A_AllBinSubDir=outDir+"theta1A_AllBin/";
+    std::string out_x1A_AllBinSubDir=outDir+"x1A_AllBin/";
 
-    std::string out_theta1B_AllBinSubDir=outDir+"theta1B_AllBin/";
+    std::string out_x1B_AllBinSubDir=outDir+"x1B_AllBin/";
 
     const auto tMCStart{std::chrono::steady_clock::now()};
 //remainingLoopNum-lastLoopNum
@@ -529,29 +533,29 @@ void version1RingQuadratic::executionMCAfterEq(const unsigned long long &lag, co
 
 
         //propose a move
-        double rNext;
-        double theta0BNext;
-        double theta1ANext;
-        double theta1BNext;
-        proposal(rCurr,theta0BCurr,theta1ACurr,theta1BCurr,rNext,theta0BNext,theta1ANext,theta1BNext);
-        double r = acceptanceRatio(rCurr,theta0BCurr,theta1ACurr,theta1BCurr,rNext,theta0BNext,theta1ANext,theta1BNext);
+        double LNext;
+        double x0BNext;
+        double x1ANext;
+        double x1BNext;
+        proposal(LCurr,x0BCurr,x1ACurr,x1BCurr,LNext,x0BNext,x1ANext,x1BNext);
+        double r = acceptanceRatio(LCurr,x0BCurr,x1ACurr,x1BCurr,LNext,x0BNext,x1ANext,x1BNext);
         double u = distUnif01(e2);
         if (u <= r) {
-            rCurr=rNext;
-            theta0BCurr=theta0BNext;
-            theta1ACurr=theta1ANext;
-            theta1BCurr=theta1BNext;
-            UCurr = (*potFuncPtr)(rCurr,theta0BCurr,theta1ACurr,theta1BCurr);
+            LCurr=LNext;
+            x0BCurr=x0BNext;
+            x1ACurr=x1ANext;
+            x1BCurr=x1BNext;
+            UCurr = (*potFuncPtr)(LCurr,x0BCurr,x1ACurr,x1BCurr);
         }//end of accept-reject
 
         unsigned long long indOfArrayU = lpNum % writeInterval;
 
 
         U_ptr[indOfArrayU] = UCurr;
-        r_ptr[indOfArrayU]=rCurr;
-        theta0B_ptr[indOfArrayU]=theta0BCurr;
-        theta1A_ptr[indOfArrayU]=theta1ACurr;
-        theta1B_ptr[indOfArrayU]=theta1BCurr;
+        L_ptr[indOfArrayU]=LCurr;
+        x0B_ptr[indOfArrayU]=x0BCurr;
+        x1A_ptr[indOfArrayU]=x1ACurr;
+        x1B_ptr[indOfArrayU]=x1BCurr;
 
 
 
@@ -567,17 +571,17 @@ void version1RingQuadratic::executionMCAfterEq(const unsigned long long &lag, co
             save_array_to_pickle(U_ptr, sizeOfArrayU, outUPicleFileName);
             save_to_bin_file(U_ptr, sizeOfArrayU, outUBinFileName);
 
-            std::string out_r_BinFileName=out_r_AllBinSubDir+filenameMiddle+".r.bin";
-            save_to_bin_file(r_ptr,sizeOfArrayU,out_r_BinFileName);
+            std::string out_L_BinFileName=out_L_AllBinSubDir+filenameMiddle+".L.bin";
+            save_to_bin_file(L_ptr,sizeOfArrayU,out_L_BinFileName);
 
-            std::string out_theta0B_BinFileName=out_theta0B_AllBinSubDir+filenameMiddle+".theta0B_All.bin";
-            save_to_bin_file(theta0B_ptr,sizeOfArrayU,out_theta0B_BinFileName);
+            std::string out_x0B_BinFileName=out_x0B_AllBinSubDir+filenameMiddle+".x0B_All.bin";
+            save_to_bin_file(x0B_ptr,sizeOfArrayU,out_x0B_BinFileName);
 
-            std::string out_theta1A_BinFileName=out_theta1A_AllBinSubDir+filenameMiddle+".theta1A_All.bin";
-            save_to_bin_file(theta1A_ptr,sizeOfArrayU,out_theta1A_BinFileName);
+            std::string out_x1A_BinFileName=out_x1A_AllBinSubDir+filenameMiddle+".x1A_All.bin";
+            save_to_bin_file(x1A_ptr,sizeOfArrayU,out_x1A_BinFileName);
 
-            std::string out_theta1B_BinFileName=out_theta1B_AllBinSubDir+filenameMiddle+".theta1B_All.bin";
-            save_to_bin_file(theta1B_ptr,sizeOfArrayU,out_theta1B_BinFileName);
+            std::string out_x1B_BinFileName=out_x1B_AllBinSubDir+filenameMiddle+".x1B_All.bin";
+            save_to_bin_file(x1B_ptr,sizeOfArrayU,out_x1B_BinFileName);
 
             const auto tWriteEnd{std::chrono::steady_clock::now()};
 
@@ -594,27 +598,27 @@ void version1RingQuadratic::executionMCAfterEq(const unsigned long long &lag, co
     for(unsigned long long lpFinal=0;lpFinal<lastLoopNum;lpFinal++){
 
         //propose a move
-        double rNext;
-        double theta0BNext;
-        double theta1ANext;
-        double theta1BNext;
-        proposal(rCurr,theta0BCurr,theta1ACurr,theta1BCurr,rNext,theta0BNext,theta1ANext,theta1BNext);
-        double r = acceptanceRatio(rCurr,theta0BCurr,theta1ACurr,theta1BCurr,rNext,theta0BNext,theta1ANext,theta1BNext);
+        double LNext;
+        double x0BNext;
+        double x1ANext;
+        double x1BNext;
+        proposal(LCurr,x0BCurr,x1ACurr,x1BCurr,LNext,x0BNext,x1ANext,x1BNext);
+        double r = acceptanceRatio(LCurr,x0BCurr,x1ACurr,x1BCurr,LNext,x0BNext,x1ANext,x1BNext);
         double u = distUnif01(e2);
         if (u <= r) {
-            rCurr=rNext;
-            theta0BCurr=theta0BNext;
-            theta1ACurr=theta1ANext;
-            theta1BCurr=theta1BNext;
-            UCurr = (*potFuncPtr)(rCurr,theta0BCurr,theta1ACurr,theta1BCurr);
+            LCurr=LNext;
+            x0BCurr=x0BNext;
+            x1ACurr=x1ANext;
+            x1BCurr=x1BNext;
+            UCurr = (*potFuncPtr)(LCurr,x0BCurr,x1ACurr,x1BCurr);
         }//end of accept-reject
 
 
         U_ptr[lpFinal]=UCurr;
-        r_ptr[lpFinal]=rCurr;
-        theta0B_ptr[lpFinal]=theta0BCurr;
-        theta1A_ptr[lpFinal]=theta1ACurr;
-        theta1B_ptr[lpFinal]=theta1BCurr;
+        L_ptr[lpFinal]=LCurr;
+        x0B_ptr[lpFinal]=x0BCurr;
+        x1A_ptr[lpFinal]=x1ACurr;
+        x1B_ptr[lpFinal]=x1BCurr;
 
 
 
@@ -628,17 +632,17 @@ void version1RingQuadratic::executionMCAfterEq(const unsigned long long &lag, co
     save_array_to_pickle(U_ptr,lastLoopNum,outUPicleFileName);
     save_to_bin_file(U_ptr,lastLoopNum,outUBinFileName);
 
-    std::string out_r_BinFileName=out_r_AllBinSubDir+filenameMiddle+".r.bin";
-    save_to_bin_file(r_ptr,lastLoopNum,out_r_BinFileName);
+    std::string out_L_BinFileName=out_L_AllBinSubDir+filenameMiddle+".L.bin";
+    save_to_bin_file(L_ptr,lastLoopNum,out_L_BinFileName);
 
-    std::string out_theta0B_BinFileName=out_theta0B_AllBinSubDir+filenameMiddle+".theta0B_All.bin";
-    save_to_bin_file(theta0B_ptr,lastLoopNum,out_theta0B_BinFileName);
+    std::string out_x0B_BinFileName=out_x0B_AllBinSubDir+filenameMiddle+".x0B_All.bin";
+    save_to_bin_file(x0B_ptr,lastLoopNum,out_x0B_BinFileName);
 
-    std::string out_theta1A_BinFileName=out_theta1A_AllBinSubDir+filenameMiddle+".theta1A_All.bin";
-    save_to_bin_file(theta1A_ptr,lastLoopNum,out_theta1A_BinFileName);
+    std::string out_x1A_BinFileName=out_x1A_AllBinSubDir+filenameMiddle+".x1A_All.bin";
+    save_to_bin_file(x1A_ptr,lastLoopNum,out_x1A_BinFileName);
 
-    std::string out_theta1B_BinFileName=out_theta1B_AllBinSubDir+filenameMiddle+".theta1B_All.bin";
-    save_to_bin_file(theta1B_ptr,lastLoopNum,out_theta1B_BinFileName);
+    std::string out_x1B_BinFileName=out_x1B_AllBinSubDir+filenameMiddle+".x1B_All.bin";
+    save_to_bin_file(x1B_ptr,lastLoopNum,out_x1B_BinFileName);
 
     const auto tMCEnd{std::chrono::steady_clock::now()};
 

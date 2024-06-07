@@ -7,28 +7,28 @@
 void reader::searchFiles() {
     this->UPath = this->TDir + "/UAllBin/";
 
-    this->rPath = this->TDir + "/r_AllBin/";
-    this->theta0BPath = this->TDir + "/theta0B_AllBin/";
-    this->theta1APath = this->TDir + "/theta1A_AllBin/";
-    this->theta1BPath = this->TDir + "/theta1B_AllBin/";
+    this->LPath = this->TDir + "/L_AllBin/";
+    this->x0BPath = this->TDir + "/x0B_AllBin/";
+    this->x1APath = this->TDir + "/x1A_AllBin/";
+    this->x1BPath = this->TDir + "/x1B_AllBin/";
     for (const auto &entry: fs::directory_iterator(UPath)) {
         this->UFilesAll.push_back(entry.path().string());
     }
 
-    for(const auto& entry:fs::directory_iterator(rPath)){
-        this->rFilesAll.push_back(entry.path().string());
+    for(const auto& entry:fs::directory_iterator(LPath)){
+        this->LFilesAll.push_back(entry.path().string());
     }
 
-    for (const auto &entry: fs::directory_iterator(theta0BPath)) {
-        this->theta0BFilesAll.push_back(entry.path().string());
+    for (const auto &entry: fs::directory_iterator(x0BPath)) {
+        this->x0BFilesAll.push_back(entry.path().string());
     }
 
-    for (const auto &entry: fs::directory_iterator(theta1APath)) {
-        this->theta1AFilesAll.push_back(entry.path().string());
+    for (const auto &entry: fs::directory_iterator(x1APath)) {
+        this->x1AFilesAll.push_back(entry.path().string());
     }
 
-    for (const auto &entry: fs::directory_iterator(theta1BPath)) {
-        this->theta1BFilesAll.push_back(entry.path().string());
+    for (const auto &entry: fs::directory_iterator(x1BPath)) {
+        this->x1BFilesAll.push_back(entry.path().string());
     }
 
 
@@ -65,22 +65,22 @@ void reader::sortFiles(){
     std::vector<std::string> UEndSorted=this->sortOneDir(this->UFilesAll);
     this->sorted_UFilesAll.insert(this->sorted_UFilesAll.end(),UEndSorted.begin(),UEndSorted.end());
 //    printVec(sorted_UFilesAll);
-    this->sorted_rFilesAll.push_back(this->rPath+"/loopStart0ReachEq.r.bin");
-    std::vector<std::string> rEndSorted=this->sortOneDir(this->rFilesAll);
-    this->sorted_rFilesAll.insert(this->sorted_rFilesAll.end(),rEndSorted.begin(),rEndSorted.end());
+    this->sorted_LFilesAll.push_back(this->LPath+"/loopStart0ReachEq.L.bin");
+    std::vector<std::string> LEndSorted=this->sortOneDir(this->LFilesAll);
+    this->sorted_LFilesAll.insert(this->sorted_LFilesAll.end(),LEndSorted.begin(),LEndSorted.end());
 //    printVec(sorted_xAFilesAll);
-    this->sorted_theta0BFilesAll.push_back(this->theta0BPath+"/loopStart0ReachEq.theta0B_All.bin");
-    std::vector<std::string> theta0BEndSorted=this->sortOneDir(this->theta0BFilesAll);
-    this->sorted_theta0BFilesAll.insert(this->sorted_theta0BFilesAll.end(),theta0BEndSorted.begin(),theta0BEndSorted.end());
+    this->sorted_x0BFilesAll.push_back(this->x0BPath+"/loopStart0ReachEq.x0B_All.bin");
+    std::vector<std::string> x0BEndSorted=this->sortOneDir(this->x0BFilesAll);
+    this->sorted_x0BFilesAll.insert(this->sorted_x0BFilesAll.end(),x0BEndSorted.begin(),x0BEndSorted.end());
 //    printVec(sorted_xBFilesAll);
 
-    this->sorted_theta1AFilesAll.push_back(this->theta1APath+"/loopStart0ReachEq.theta1A_All.bin");
-    std::vector<std::string> theta1AEndSorted=this->sortOneDir(this->theta1AFilesAll);
-    this->sorted_theta1AFilesAll.insert(this->sorted_theta1AFilesAll.end(),theta1AEndSorted.begin(),theta1AEndSorted.end());
+    this->sorted_x1AFilesAll.push_back(this->x1APath+"/loopStart0ReachEq.x1A_All.bin");
+    std::vector<std::string> x1AEndSorted=this->sortOneDir(this->x1AFilesAll);
+    this->sorted_x1AFilesAll.insert(this->sorted_x1AFilesAll.end(),x1AEndSorted.begin(),x1AEndSorted.end());
 
-    this->sorted_theta1BFilesAll.push_back(this->theta1BPath+"/loopStart0ReachEq.theta1B_All.bin");
-    std::vector<std::string> theta1BEndSorted=this->sortOneDir(this->theta1BFilesAll);
-    this->sorted_theta1BFilesAll.insert(this->sorted_theta1BFilesAll.end(),theta1BEndSorted.begin(),theta1BEndSorted.end());
+    this->sorted_x1BFilesAll.push_back(this->x1BPath+"/loopStart0ReachEq.x1B_All.bin");
+    std::vector<std::string> x1BEndSorted=this->sortOneDir(this->x1BFilesAll);
+    this->sorted_x1BFilesAll.insert(this->sorted_x1BFilesAll.end(),x1BEndSorted.begin(),x1BEndSorted.end());
 }
 
 void reader::parseSummary(){
@@ -191,24 +191,24 @@ unsigned long long reader::loadU(){
 }
 
 
-unsigned long long reader::load_r(){
+unsigned long long reader::load_L(){
 
-    size_t rFileNum=sorted_rFilesAll.size();
+    size_t LFileNum=sorted_LFilesAll.size();
 
-    unsigned long long rNumMax=version1RingQuadratic::loopMax+(rFileNum-1)*version1RingQuadratic::loopToWrite;
+    unsigned long long LNumMax=version1RingQuadratic::loopMax+(LFileNum-1)*version1RingQuadratic::loopToWrite;
 
-    unsigned long long rSelectedNum=static_cast<unsigned long long>(std::ceil((static_cast<double >(rNumMax))/(static_cast<double>(lagEst))));
+    unsigned long long LSelectedNum=static_cast<unsigned long long>(std::ceil((static_cast<double >(LNumMax))/(static_cast<double>(lagEst))));
 
-    this->r_selected=std::shared_ptr<double[]>(new double[rSelectedNum],
+    this->L_selected=std::shared_ptr<double[]>(new double[LSelectedNum],
                                               std::default_delete<double[]>());
     unsigned long long counter=0;
     unsigned long long pointerStart=this->nEqCounterStart;
-    for(const std::string & rFileName:this->sorted_rFilesAll){
+    for(const std::string & LFileName:this->sorted_LFilesAll){
         size_t lengthInOneFile=0;
-        this->loadMsgFile(rFileName,db_inOneFile,lengthInOneFile);
+        this->loadMsgFile(LFileName,db_inOneFile,lengthInOneFile);
         unsigned long long i=pointerStart;
         while(i<lengthInOneFile){
-            r_selected[counter]=db_inOneFile[i];
+            L_selected[counter]=db_inOneFile[i];
             i+=lagEst;
             counter++;
 
@@ -221,23 +221,23 @@ unsigned long long reader::load_r(){
     return counter;
 }
 
-unsigned long long reader::load_theta0B(){
+unsigned long long reader::load_x0B(){
 
-    size_t theta0BFileNum=sorted_theta0BFilesAll.size();
-    unsigned long long theta0BNumMax=version1RingQuadratic::loopMax+(theta0BFileNum-1)*version1RingQuadratic::loopToWrite;
-    unsigned long long theta0BSelectedNum=static_cast<unsigned long long>(std::ceil((static_cast<double >(theta0BNumMax))/(static_cast<double>(lagEst))));
+    size_t x0BFileNum=sorted_x0BFilesAll.size();
+    unsigned long long x0BNumMax=version1RingQuadratic::loopMax+(x0BFileNum-1)*version1RingQuadratic::loopToWrite;
+    unsigned long long x0BSelectedNum=static_cast<unsigned long long>(std::ceil((static_cast<double >(x0BNumMax))/(static_cast<double>(lagEst))));
 
 
-    this->theta0B_selected=std::shared_ptr<double[]>(new double[theta0BSelectedNum],
+    this->x0B_selected=std::shared_ptr<double[]>(new double[x0BSelectedNum],
                                                std::default_delete<double[]>());
     unsigned long long counter=0;
     unsigned long long pointerStart=this->nEqCounterStart;
-    for(const std::string & theta0BFileName:this->sorted_theta0BFilesAll){
+    for(const std::string & x0BFileName:this->sorted_x0BFilesAll){
         size_t lengthInOneFile=0;
-        this->loadMsgFile(theta0BFileName,db_inOneFile,lengthInOneFile);
+        this->loadMsgFile(x0BFileName,db_inOneFile,lengthInOneFile);
         unsigned long long i=pointerStart;
         while(i<lengthInOneFile){
-            theta0B_selected[counter]=db_inOneFile[i];
+            x0B_selected[counter]=db_inOneFile[i];
             i+=lagEst;
             counter++;
 
@@ -252,23 +252,23 @@ unsigned long long reader::load_theta0B(){
 
 
 
-unsigned long long reader::load_theta1A(){
+unsigned long long reader::load_x1A(){
 
-    size_t theta1AFileNum=sorted_theta1AFilesAll.size();
-    unsigned long long theta1ANumMax=version1RingQuadratic::loopMax+(theta1AFileNum-1)*version1RingQuadratic::loopToWrite;
+    size_t x1AFileNum=sorted_x1AFilesAll.size();
+    unsigned long long x1ANumMax=version1RingQuadratic::loopMax+(x1AFileNum-1)*version1RingQuadratic::loopToWrite;
 
-    unsigned long long theta1ASelectedNum=static_cast<unsigned long long>(std::ceil((static_cast<double >(theta1ANumMax))/(static_cast<double>(lagEst))));
+    unsigned long long x1ASelectedNum=static_cast<unsigned long long>(std::ceil((static_cast<double >(x1ANumMax))/(static_cast<double>(lagEst))));
 
-    this->theta1A_selected=std::shared_ptr<double[]>(new double[theta1ASelectedNum],
+    this->x1A_selected=std::shared_ptr<double[]>(new double[x1ASelectedNum],
                                                      std::default_delete<double[]>());
     unsigned long long counter=0;
     unsigned long long pointerStart=this->nEqCounterStart;
-    for(const std::string & theta1AFileName:this->sorted_theta1AFilesAll){
+    for(const std::string & x1AFileName:this->sorted_x1AFilesAll){
         size_t lengthInOneFile=0;
-        this->loadMsgFile(theta1AFileName,db_inOneFile,lengthInOneFile);
+        this->loadMsgFile(x1AFileName,db_inOneFile,lengthInOneFile);
         unsigned long long i=pointerStart;
         while(i<lengthInOneFile){
-            theta1A_selected[counter]=db_inOneFile[i];
+            x1A_selected[counter]=db_inOneFile[i];
             i+=lagEst;
             counter++;
 
@@ -282,22 +282,22 @@ unsigned long long reader::load_theta1A(){
 }
 
 
-unsigned long long reader::load_theta1B(){
-    size_t theta1BFileNum=sorted_theta1BFilesAll.size();
-    unsigned long long theta1BNumMax=version1RingQuadratic::loopMax+(theta1BFileNum-1)*version1RingQuadratic::loopToWrite;
-    unsigned long long theta1BSelectedNum=static_cast<unsigned long long>(std::ceil((static_cast<double >(theta1BNumMax))/(static_cast<double>(lagEst))));
+unsigned long long reader::load_x1B(){
+    size_t x1BFileNum=sorted_x1BFilesAll.size();
+    unsigned long long x1BNumMax=version1RingQuadratic::loopMax+(x1BFileNum-1)*version1RingQuadratic::loopToWrite;
+    unsigned long long x1BSelectedNum=static_cast<unsigned long long>(std::ceil((static_cast<double >(x1BNumMax))/(static_cast<double>(lagEst))));
 
-    this->theta1B_selected=std::shared_ptr<double[]>(new double[theta1BSelectedNum],
+    this->x1B_selected=std::shared_ptr<double[]>(new double[x1BSelectedNum],
                                                      std::default_delete<double[]>());
 
     unsigned long long counter=0;
     unsigned long long pointerStart=this->nEqCounterStart;
-    for(const std::string & theta1BFileName:this->sorted_theta1BFilesAll){
+    for(const std::string & x1BFileName:this->sorted_x1BFilesAll){
         size_t lengthInOneFile=0;
-        this->loadMsgFile(theta1BFileName,db_inOneFile,lengthInOneFile);
+        this->loadMsgFile(x1BFileName,db_inOneFile,lengthInOneFile);
         unsigned long long i=pointerStart;
         while(i<lengthInOneFile){
-            theta1B_selected[counter]=db_inOneFile[i];
+            x1B_selected[counter]=db_inOneFile[i];
             i+=lagEst;
             counter++;
 
@@ -350,93 +350,93 @@ void reader::data2json() {
     ofsU << UStr << std::endl;
     ofsU.close();
 
-    //r
-    const auto tRead_rStart{std::chrono::steady_clock::now()};
-    unsigned long long r_size = this->load_r();
-    const auto tRead_rEnd{std::chrono::steady_clock::now()};
+    //L
+    const auto tRead_LStart{std::chrono::steady_clock::now()};
+    unsigned long long L_size = this->load_L();
+    const auto tRead_LEnd{std::chrono::steady_clock::now()};
 
-    const std::chrono::duration<double> elapsed_rsecondsAll{tRead_rEnd - tRead_rStart};
-    std::cout << "r_size=" << r_size << std::endl;
-    std::cout << "read r time: " << elapsed_rsecondsAll.count() / 3600.0 << " h" << std::endl;
-    //write r
-    std::string rJsonPath = jsonPath + "/jsonr/";
-    if (!fs::is_directory(rJsonPath) || !fs::exists(rJsonPath)) {
-        fs::create_directories(rJsonPath);
+    const std::chrono::duration<double> elapsed_LsecondsAll{tRead_LEnd - tRead_LStart};
+    std::cout << "L_size=" << L_size << std::endl;
+    std::cout << "read L time: " << elapsed_LsecondsAll.count() / 3600.0 << " h" << std::endl;
+    //write L
+    std::string LJsonPath = jsonPath + "/jsonL/";
+    if (!fs::is_directory(LJsonPath) || !fs::exists(LJsonPath)) {
+        fs::create_directories(LJsonPath);
     }
-    std::string rJsonFile = rJsonPath + "/rData.json";
-    boost::json::object obj_r;
-    boost::json::array arr_r;
-    for (unsigned long long i = 0; i < r_size; i++) {
-        arr_r.push_back(r_selected[i]);
-
-    }
-    obj_r["r"] = arr_r;
-    std::ofstream ofsr(rJsonFile);
-    std::string rStr = boost::json::serialize(obj_r);
-    ofsr << rStr << std::endl;
-    ofsr.close();
-
-    //theta
-
-    //theta0B
-    const auto tRead_theta0BStart{std::chrono::steady_clock::now()};
-    unsigned long long theta0B_size = this->load_theta0B();
-    const auto tRead_theta0BEnd{std::chrono::steady_clock::now()};
-    const std::chrono::duration<double> elapsed_theta0BsecondsAll{tRead_theta0BEnd - tRead_theta0BStart};
-    std::cout << "theta0B_size=" << theta0B_size << std::endl;
-    std::cout << "read theta0B time: " << elapsed_theta0BsecondsAll.count() / 3600.0 << " h" << std::endl;
-
-
-    //theta1A
-    const auto tRead_theta1AStart{std::chrono::steady_clock::now()};
-    unsigned long long theta1A_size = this->load_theta1A();
-    const auto tRead_theta1AEnd{std::chrono::steady_clock::now()};
-    const std::chrono::duration<double> elapsed_theta1AsecondsAll{tRead_theta1AEnd - tRead_theta1AStart};
-    std::cout << "theta1A_size=" << theta1A_size << std::endl;
-    std::cout << "read theta1A time: " << elapsed_theta1AsecondsAll.count() / 3600.0 << " h" << std::endl;
-
-    //theta1B
-
-    const auto tRead_theta1BStart{std::chrono::steady_clock::now()};
-    unsigned long long theta1B_size = this->load_theta1B();
-    const auto tRead_theta1BEnd{std::chrono::steady_clock::now()};
-    const std::chrono::duration<double> elapsed_theta1BsecondsAll{tRead_theta1BEnd - tRead_theta1BStart};
-    std::cout << "theta1B_size=" << theta1B_size << std::endl;
-    std::cout << "read theta1B time: " << elapsed_theta1BsecondsAll.count() / 3600.0 << " h" << std::endl;
-
-    //write theta
-    std::string thetaJsonPath = jsonPath + "/jsontheta/";
-    if (!fs::is_directory(thetaJsonPath) || !fs::exists(thetaJsonPath)) {
-        fs::create_directories(thetaJsonPath);
-    }
-    std::string thetaJsonFile = thetaJsonPath + "/thetaData.json";
-
-    boost::json::object obj_theta;
-    boost::json::array arr_theta0B;
-    boost::json::array arr_theta1A;
-    boost::json::array arr_theta1B;
-
-    for (unsigned long long i = 0; i < theta0B_size; i++) {
-        arr_theta0B.push_back(theta0B_selected[i]);
+    std::string LJsonFile = LJsonPath + "/LData.json";
+    boost::json::object obj_L;
+    boost::json::array arr_L;
+    for (unsigned long long i = 0; i < L_size; i++) {
+        arr_L.push_back(L_selected[i]);
 
     }
+    obj_L["L"] = arr_L;
+    std::ofstream ofsL(LJsonFile);
+    std::string LStr = boost::json::serialize(obj_L);
+    ofsL << LStr << std::endl;
+    ofsL.close();
 
-    for (unsigned long long i = 0; i < theta1A_size; i++) {
-        arr_theta1A.push_back(theta1A_selected[i]);
+    //x
+
+    //x0B
+    const auto tRead_x0BStart{std::chrono::steady_clock::now()};
+    unsigned long long x0B_size = this->load_x0B();
+    const auto tRead_x0BEnd{std::chrono::steady_clock::now()};
+    const std::chrono::duration<double> elapsed_x0BsecondsAll{tRead_x0BEnd - tRead_x0BStart};
+    std::cout << "x0B_size=" << x0B_size << std::endl;
+    std::cout << "read x0B time: " << elapsed_x0BsecondsAll.count() / 3600.0 << " h" << std::endl;
+
+
+    //x1A
+    const auto tRead_x1AStart{std::chrono::steady_clock::now()};
+    unsigned long long x1A_size = this->load_x1A();
+    const auto tRead_x1AEnd{std::chrono::steady_clock::now()};
+    const std::chrono::duration<double> elapsed_x1AsecondsAll{tRead_x1AEnd - tRead_x1AStart};
+    std::cout << "x1A_size=" << x1A_size << std::endl;
+    std::cout << "read x1A time: " << elapsed_x1AsecondsAll.count() / 3600.0 << " h" << std::endl;
+
+    //x1B
+
+    const auto tRead_x1BStart{std::chrono::steady_clock::now()};
+    unsigned long long x1B_size = this->load_x1B();
+    const auto tRead_x1BEnd{std::chrono::steady_clock::now()};
+    const std::chrono::duration<double> elapsed_x1BsecondsAll{tRead_x1BEnd - tRead_x1BStart};
+    std::cout << "x1B_size=" << x1B_size << std::endl;
+    std::cout << "read x1B time: " << elapsed_x1BsecondsAll.count() / 3600.0 << " h" << std::endl;
+
+    //write x
+    std::string xJsonPath = jsonPath + "/jsonx/";
+    if (!fs::is_directory(xJsonPath) || !fs::exists(xJsonPath)) {
+        fs::create_directories(xJsonPath);
+    }
+    std::string xJsonFile = xJsonPath + "/xData.json";
+
+    boost::json::object obj_x;
+    boost::json::array arr_x0B;
+    boost::json::array arr_x1A;
+    boost::json::array arr_x1B;
+
+    for (unsigned long long i = 0; i < x0B_size; i++) {
+        arr_x0B.push_back(x0B_selected[i]);
 
     }
 
-    for (unsigned long long i = 0; i < theta1B_size; i++) {
-        arr_theta1B.push_back(theta1B_selected[i]);
+    for (unsigned long long i = 0; i < x1A_size; i++) {
+        arr_x1A.push_back(x1A_selected[i]);
 
     }
-    obj_theta["theta0B"] = arr_theta0B;
-    obj_theta["theta1A"] = arr_theta1A;
-    obj_theta["theta1B"] = arr_theta1B;
-    std::ofstream ofstheta(thetaJsonFile);
-    std::string thetaStr = boost::json::serialize(obj_theta);
-    ofstheta << thetaStr << std::endl;
-    ofstheta.close();
+
+    for (unsigned long long i = 0; i < x1B_size; i++) {
+        arr_x1B.push_back(x1B_selected[i]);
+
+    }
+    obj_x["x0B"] = arr_x0B;
+    obj_x["x1A"] = arr_x1A;
+    obj_x["x1B"] = arr_x1B;
+    std::ofstream ofsx(xJsonFile);
+    std::string xStr = boost::json::serialize(obj_x);
+    ofsx<< xStr << std::endl;
+    ofsx.close();
 
 
 
