@@ -628,6 +628,9 @@ void version1RingQuadratic::executionMCAfterEq(const unsigned long long &lag, co
     save_array_to_pickle(U_ptr,lastLoopNum,outUPicleFileName);
     save_to_bin_file(U_ptr,lastLoopNum,outUBinFileName);
 
+    std::string out_r_BinFileName=out_r_AllBinSubDir+filenameMiddle+".r.bin";
+    save_to_bin_file(r_ptr,lastLoopNum,out_r_BinFileName);
+
     std::string out_theta0B_BinFileName=out_theta0B_AllBinSubDir+filenameMiddle+".theta0B_All.bin";
     save_to_bin_file(theta0B_ptr,lastLoopNum,out_theta0B_BinFileName);
 

@@ -659,6 +659,9 @@ void version1InsideLQuadratic::executionMCAfterEq(const unsigned long long &lag,
     save_array_to_pickle(U_ptr,lastLoopNum,outUPicleFileName);
     save_to_bin_file(U_ptr,lastLoopNum,outUBinFileName);
 
+    std::string out_r_BinFileName=out_r_AllBinSubDir+filenameMiddle+".r.bin";
+    save_to_bin_file(r_ptr,lastLoopNum,out_r_BinFileName);
+
     std::string out_theta0A_BinFileName=out_theta0A_AllBinSubDir+filenameMiddle+".theta0A_All.bin";
     save_to_bin_file(theta0A_ptr,lastLoopNum,out_theta0A_BinFileName);
 
