@@ -158,7 +158,8 @@ public:
 //        if (stepSize>0.005){
 //            stepSize=0.005;
 //        }
-        this->h=0.1;//stepSize;
+double stepForT1=0.1;
+        this->h= stepForT1*T;//stepSize;
 
 
         std::cout<<"h="<<h<<std::endl;
