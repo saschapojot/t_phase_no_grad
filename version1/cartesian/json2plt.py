@@ -30,6 +30,8 @@ TFileNames=[]
 for TFile in glob.glob(pathData+"/T*"):
 
     matchT=re.search(r"T(\d+(\.\d+)?)",TFile)
+    # if float(matchT.group(1))<1:
+    #     continue
 
     if matchT:
         TFileNames.append(TFile)
@@ -215,18 +217,19 @@ def plt_x(oneTFile):
     plt.figure(figsize=(12, 6))
     plt.ylim(-1, 1)
     for i in range(0,len(pos_A)):
-        plt.hlines(y=0,xmin=pos_A[i]-sd_A[i],xmax=pos_A[i]+sd_A[i],color="red",linewidth=2,alpha=0.2)
+        plt.hlines(y=0,xmin=pos_A[i]-sd_A[i],xmax=pos_A[i]+sd_A[i],color="red",linewidth=2,alpha=0.5)
         plt.text(pos_A[i],0.3,str(i)+"A",color="blue", ha='center')
-        plt.text(pos_A[i],-0.1,str(np.round(pos_A[i],4)),color="blue", ha='center',fontsize=8)
+        plt.text(pos_A[i],-0.1,"x"+str(i)+"A="+str(np.round(pos_A[i],4)),color="blue", ha='center',fontsize=8)
+        plt.text(pos_A[i],0.1,"sd(x"+str(i)+"A)="+str(np.round(sd_A[i],4)),color="red", ha='center',fontsize=8)
 
 
     plt.scatter(pos_A,[0]*len(pos_A),color="blue",s=8,label="A")
 
     for i in range(0,len(pos_B)):
-        plt.hlines(y=0,xmin=pos_B[i]-sd_B[i],xmax=pos_B[i]+sd_B[i],color="magenta",linewidth=2,alpha=0.2)
-        plt.text(pos_B[i],0.1,str(i)+"B",color="green", ha='center')
-        plt.text(pos_B[i],-0.3,str(np.round(pos_B[i],4)),color="green", ha='center',fontsize=8)
-
+        plt.hlines(y=0,xmin=pos_B[i]-sd_B[i],xmax=pos_B[i]+sd_B[i],color="magenta",linewidth=2,alpha=0.5)
+        plt.text(pos_B[i],0.3,str(i)+"B",color="green", ha='center')
+        plt.text(pos_B[i],-0.1,"x"+str(i)+"B="+str(np.round(pos_B[i],4)),color="green", ha='center',fontsize=8)
+        plt.text(pos_B[i],0.1,"sd(x"+str(i)+"B)="+str(np.round(sd_B[i],4)),color="magenta", ha='center',fontsize=8)
     plt.scatter(pos_B,[0]*len(pos_B),color="green",s=8,label="B")
     plt.legend(loc="best")
     plt.gca().get_yaxis().set_visible(False)

@@ -39,7 +39,7 @@
 
 namespace fs = boost::filesystem;
 const auto PI=M_PI;
-//this subroutine computes the mc evolution for a 1d system, 2-atom, quadratic potential +PBC
+//Using angular coordinates, this subroutine computes the mc evolution for a 1d system, 2-atom, quadratic potential +PBC
 
 class potentialFunction {
     //base class for potential function

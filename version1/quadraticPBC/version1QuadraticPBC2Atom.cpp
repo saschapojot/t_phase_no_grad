@@ -117,7 +117,7 @@ void version1Quadratic::proposal(const arma::dcolvec &xACurr, const arma::dcolve
 
     std::normal_distribution<double> dLast(LCurr,stddev);
     LNext=dLast(gen);
-
+    //???????????????????
 
 
 }

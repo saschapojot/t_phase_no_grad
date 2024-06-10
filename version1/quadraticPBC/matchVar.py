@@ -69,7 +69,7 @@ def readGAB(oneTFile):
 
 #parameters
 
-whichT=0
+whichT=2
 rowNum=0
 paramFile="../../version1Input/1d/quadratic/quadraticParams.csv"
 dfStr=pd.read_csv(paramFile)

@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 
     version1InsideLQuadratic::parseCSV(rowNum, a1, a2, c1, c2, mA, mB);
 
-//    std::cout<<"r0="<<r0<<std::endl;
+//    std::cout<<"r0="<]<r0<<std::endl;
 //    auto qFunc=quadratic(a1,a2,c1,c2,r0);
     unsigned long long cellNum = 2;
 

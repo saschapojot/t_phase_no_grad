@@ -6,8 +6,8 @@
 
 void version1CartesianQuadratic::parseCSV(const int &rowNum, double &a1, double &a2, double &c1, double &c2,double &mA, double &mB) {
 
-    std::string filePath = "./version1Input/1d/insideLQuadratic/insideLQuadratic.csv";
-    std::string pyFile = "./version1/insideLQuadratic/readCSV.py";
+    std::string filePath = "./version1Input/1d/cartesian/cartesianQuadratic.csv";
+    std::string pyFile = "./version1/cartesian/readCSV.py";
     std::string commandToReadCSV = "python3 " + pyFile + " " + filePath + " " + std::to_string(rowNum);
 
     std::string result = execPython(commandToReadCSV.c_str());
@@ -51,7 +51,7 @@ void version1CartesianQuadratic::parseCSV(const int &rowNum, double &a1, double 
 
 
 
-
+    std::cout<<"a1="<<a1<<", a2="<<a2<<", c1="<<c1<<", c2="<<c2<<std::endl;
 
 
 

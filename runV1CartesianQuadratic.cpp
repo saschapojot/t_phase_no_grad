@@ -43,16 +43,18 @@ int main(int argc, char *argv[]) {
     std::shared_ptr<double[]> x1B_ptr;
 
     try {
-        U_ptr = std::shared_ptr<double[]>(new double[version1CartesianQuadratic::loopMax], std::default_delete<double[]>());
-        L_ptr = std::shared_ptr<double[]>(new double[version1CartesianQuadratic::loopMax], std::default_delete<double[]>());
+        U_ptr = std::shared_ptr<double[]>(new double[version1CartesianQuadratic::loopMax],
+                                          std::default_delete<double[]>());
+        L_ptr = std::shared_ptr<double[]>(new double[version1CartesianQuadratic::loopMax],
+                                          std::default_delete<double[]>());
         x0A_ptr = std::shared_ptr<double[]>(new double[version1CartesianQuadratic::loopMax],
-                                                std::default_delete<double[]>());
+                                            std::default_delete<double[]>());
         x0B_ptr = std::shared_ptr<double[]>(new double[version1CartesianQuadratic::loopMax],
-                                                std::default_delete<double[]>());
+                                            std::default_delete<double[]>());
         x1A_ptr = std::shared_ptr<double[]>(new double[version1CartesianQuadratic::loopMax],
-                                                std::default_delete<double[]>());
+                                            std::default_delete<double[]>());
         x1B_ptr = std::shared_ptr<double[]>(new double[version1CartesianQuadratic::loopMax],
-                                                std::default_delete<double[]>());
+                                            std::default_delete<double[]>());
 
     }
     catch (const std::bad_alloc &e) {
