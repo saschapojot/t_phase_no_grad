@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 # TValsAll1=[0.001*n for n in range(1,10,2)]
 #
 # TValsAll2=[0.01*n for n in range(1,10,2)]
@@ -8,7 +9,9 @@ from pathlib import Path
 #
 # TVals=TValsAll1+TValsAll2+TValsAll3
 TVals=[0.01,0.02,0.05,0.07,0.09,0.1,0.2,0.3,0.4,0.5,1,2,5]
+
 print(TVals)
+print(len(TVals))
 outDir="./bash/"
 Path(outDir).mkdir(parents=True,exist_ok=True)
 for T in TVals:

@@ -180,7 +180,8 @@ double version1CartesianQuadratic::acceptanceRatio(const double &LCurr,const dou
 /// @param x1AInit
 /// @param x1BInit
 void version1CartesianQuadratic::initPositionsEquiDistance(double &LInit,double &x0AInit, double &x0BInit,  double &x1AInit, double &x1BInit){
-    double a = 5;
+
+    double a = 10;
     LInit=2*a;
 
     x0AInit=0.1*LInit;
