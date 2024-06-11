@@ -28,7 +28,7 @@ with open(pklFile,"rb") as fptr:
     vec=np.array(pickle.load(fptr))
 
 
-startingLoop=int(1/3*len(vec))
+startingLoop=int(1/2*len(vec))
 
 vecTruncated=vec[startingLoop:]
 
@@ -65,7 +65,7 @@ else:
         lengthTmp=len(vecValsSelected)
         if lengthTmp%2==1:
             lengthTmp-=1
-        vecValsToCompute=vecValsSelected[:lengthTmp]
+        vecValsToCompute=vecValsSelected[-lengthTmp:]
         lenPart=int(len(vecValsToCompute)/2)
         selectedFromPart0=vecValsToCompute[:lenPart]
         selectedFromPart1=vecValsToCompute[lenPart:]

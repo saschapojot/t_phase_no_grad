@@ -233,13 +233,19 @@ void version1CartesianQuadratic::readEqMc(unsigned long long &lag,  unsigned lon
     std::string outUAllBinSubDir = outDir + "UAllBin/";
 
     std::string out_L_AllBinSubDir = outDir + "L_AllBin/";
+    std::string out_L_AllPickleSubDir=outDir+"L_AllPickle/";
 
     std::string out_x0A_AllBinSubDir=outDir+"x0A_AllBin/";
+    std::string out_x0A_AllPickleSubDir=outDir+"x0A_AllPickle/";
+
     std::string out_x0B_AllBinSubDir=outDir+"x0B_AllBin/";
+    std::string out_x0B_AllPickleSubDir=outDir+"x0B_AllPickle/";
 
     std::string out_x1A_AllBinSubDir=outDir+"x1A_AllBin/";
+    std::string out_x1A_AllPickleSubDir=outDir+"x1A_AllPickle/";
 
     std::string out_x1B_AllBinSubDir=outDir+"x1B_AllBin/";
+    std::string out_x1B_AllPickleSubDir=outDir+"x1B_AllPickle/";
 
 
 
@@ -251,6 +257,10 @@ void version1CartesianQuadratic::readEqMc(unsigned long long &lag,  unsigned lon
     }
     if (!fs::is_directory(out_L_AllBinSubDir) || !fs::exists(out_L_AllBinSubDir)) {
         fs::create_directories(out_L_AllBinSubDir);
+    }
+
+    if (!fs::is_directory(out_L_AllPickleSubDir) || !fs::exists(out_L_AllPickleSubDir)) {
+        fs::create_directories(out_L_AllPickleSubDir);
     }
 
     if (!fs::is_directory(out_x0A_AllBinSubDir) || !fs::exists(out_x0A_AllBinSubDir)) {
@@ -270,6 +280,24 @@ void version1CartesianQuadratic::readEqMc(unsigned long long &lag,  unsigned lon
     if (!fs::is_directory(out_x1B_AllBinSubDir ) || !fs::exists(out_x1B_AllBinSubDir )) {
         fs::create_directories(out_x1B_AllBinSubDir );
     }
+
+    //pickle
+    if (!fs::is_directory(out_x0A_AllPickleSubDir ) || !fs::exists(out_x0A_AllPickleSubDir )) {
+        fs::create_directories(out_x0A_AllPickleSubDir );
+    }
+    if (!fs::is_directory(out_x0B_AllPickleSubDir ) || !fs::exists(out_x0B_AllPickleSubDir )) {
+        fs::create_directories(out_x0B_AllPickleSubDir );
+    }
+    if (!fs::is_directory(out_x1A_AllPickleSubDir ) || !fs::exists(out_x1A_AllPickleSubDir )) {
+        fs::create_directories(out_x1A_AllPickleSubDir );
+    }
+    if (!fs::is_directory(out_x1B_AllPickleSubDir ) || !fs::exists(out_x1B_AllPickleSubDir )) {
+        fs::create_directories(out_x1B_AllPickleSubDir );
+    }
+
+
+
+
 //    std::cout<<"loop total="<<loopMax<<std::endl;
     std::regex stopRegex("stop");
     std::regex wrongRegex("wrong");
@@ -284,12 +312,38 @@ void version1CartesianQuadratic::readEqMc(unsigned long long &lag,  unsigned lon
     std::smatch matchUStop;
     std::smatch matchUWrong;
     std::smatch matchUErr;
+
     std::smatch matchULag;
+    std::smatch match_L_Lag;
+    std::smatch match_x0A_Lag;
+    std::smatch match_x0B_Lag;
+    std::smatch  match_x1A_Lag;
+    std::smatch  match_x1B_Lag;
 
     std::smatch matchUSame;
+
     std::smatch matchUEq;
-    std::smatch matchCounterStart;
-    std::smatch matchDataNumEq;
+    std::smatch match_L_Eq;
+    std::smatch match_x0A_Eq;
+    std::smatch  match_x0B_Eq;
+    std::smatch match_x1A_Eq;
+    std::smatch match_x1B_Eq;
+
+    std::smatch matchUCounterStart;
+    std::smatch match_L_CounterStart;
+    std::smatch match_x0A_CounterStart;
+    std::smatch match_x0B_CounterStart;
+    std::smatch match_x1A_CounterStart;
+    std::smatch match_x1B_CounterStart;
+
+    std::smatch matchUDataNumEq;
+    std::smatch match_L_DataNumEq;
+    std::smatch match_x0A_DataNumEq;
+    std::smatch match_x0B_DataNumEq;
+    std::smatch match_x1A_DataNumEq;
+    std::smatch match_x1B_DataNumEq;
+
+
 
 
 
@@ -351,26 +405,46 @@ void version1CartesianQuadratic::readEqMc(unsigned long long &lag,  unsigned lon
 //            unsigned long long lpStart=0;
 
             std::string filenameMiddle="loopStart0ReachEq";
+            //U
             std::string outUPickleFileName=outUAllPickleSubDir+filenameMiddle+ ".UAll.pkl";
             std::string outUBinFileName=outUAllBinSubDir+filenameMiddle+".UAll.bin";
             save_array_to_pickle(U_ptr,sizeOfArray,outUPickleFileName);
             save_to_bin_file(U_ptr,sizeOfArray,outUBinFileName);
 
-
+            //L
             std::string out_L_BinFileName=out_L_AllBinSubDir+filenameMiddle+".L.bin";
             save_to_bin_file(L_ptr,sizeOfArray,out_L_BinFileName);
 
+            std::string out_L_PickleFileName=out_L_AllPickleSubDir+filenameMiddle+".L.pkl";
+            save_array_to_pickle(L_ptr,sizeOfArray,out_L_PickleFileName);
+
+            //x0A
             std::string out_x0A_BinFileName=out_x0A_AllBinSubDir+filenameMiddle+".x0A_All.bin";
             save_to_bin_file(x0A_ptr,sizeOfArray,out_x0A_BinFileName);
 
+            std::string out_x0A_PickleFileName=out_x0A_AllPickleSubDir+filenameMiddle+".x0A_All.pkl";
+            save_array_to_pickle(x0A_ptr,sizeOfArray,out_x0A_PickleFileName);
+
+            //x0B
             std::string out_x0B_BinFileName=out_x0B_AllBinSubDir+filenameMiddle+".x0B_All.bin";
             save_to_bin_file(x0B_ptr,sizeOfArray,out_x0B_BinFileName);
 
+            std::string out_x0B_PickleFileName=out_x0B_AllPickleSubDir+filenameMiddle+".x0B_All.pkl";
+            save_array_to_pickle(x0B_ptr,sizeOfArray,out_x0B_PickleFileName);
+
+            //x1A
             std::string out_x1A_BinFileName=out_x1A_AllBinSubDir+filenameMiddle+".x1A_All.bin";
             save_to_bin_file(x1A_ptr,sizeOfArray,out_x1A_BinFileName);
 
+            std::string out_x1A_PickleFileName=out_x1A_AllPickleSubDir+filenameMiddle+".x1A_All.pkl";
+            save_array_to_pickle(x1A_ptr,sizeOfArray,out_x1A_PickleFileName);
+
+            //x1B
             std::string out_x1B_BinFileName=out_x1B_AllBinSubDir+filenameMiddle+".x1B_All.bin";
             save_to_bin_file(x1B_ptr,sizeOfArray,out_x1B_BinFileName);
+
+            std::string out_x1B_PickleFileName=out_x1B_AllPickleSubDir+filenameMiddle+".x1B_All.pkl";
+            save_array_to_pickle(x1B_ptr,sizeOfArray,out_x1B_PickleFileName);
 
             const auto tWriteEnd{std::chrono::steady_clock::now()};
 
@@ -384,10 +458,46 @@ void version1CartesianQuadratic::readEqMc(unsigned long long &lag,  unsigned lon
             std::string commandU = "python3 checkVec.py " + outUPickleFileName;
             std::string resultU;
 
+            //inquire L
+            std::string commandL="python3 checkVec.py "+out_L_PickleFileName;
+            std::string resultL;
+
+            //inquire x0A
+            std::string command_x0A="python3 checkVec.py "+ out_x0A_PickleFileName;
+            std::string result_x0A;
+
+            //inquire x0B
+            std::string command_x0B="python3 checkVec.py "+out_x0B_PickleFileName;
+            std::string result_x0B;
+
+            //inquire x1A
+            std::string command_x1A="python3 checkVec.py "+out_x1A_PickleFileName;
+            std::string result_x1A;
+
+            //inquire x1B
+            std::string command_x1B="python3 checkVec.py "+out_x1B_PickleFileName;
+            std::string result_x1B;
+
             try {
                 const auto tPyStart{std::chrono::steady_clock::now()};
                 resultU = this->execPython(commandU.c_str());
                 std::cout << "U message from python: " << resultU << std::endl;
+
+                resultL=this->execPython(commandL.c_str());
+                std::cout<<"L message from python: "<<resultL<<std::endl;
+
+                result_x0A=this->execPython(command_x0A.c_str());
+                std::cout<<"x0A message from python: "<<result_x0A<<std::endl;
+
+                result_x0B=this->execPython(command_x0B.c_str());
+                std::cout<<"x0B message from python: "<<result_x0B<<std::endl;
+
+                result_x1A=this->execPython(command_x1A.c_str());
+                std::cout<<"x1A message from python: "<<result_x1A<<std::endl;
+
+                result_x1B=this->execPython(command_x1B.c_str());
+                std::cout<<"x1B message from python: "<<result_x1B<<std::endl;
+
                 const auto tPyEnd{std::chrono::steady_clock::now()};
 
                 const std::chrono::duration<double> elapsedpy_secondsAll{tPyEnd - tPyStart};
@@ -427,34 +537,240 @@ void version1CartesianQuadratic::readEqMc(unsigned long long &lag,  unsigned lon
             }//end of regex search for same
 
 
-            if (std::regex_search(resultU, matchUEq, eqRegex)) {
+            if (
+                    std::regex_search(resultU, matchUEq, eqRegex)
+            and std::regex_search(resultL,match_L_Eq,eqRegex)
+            and std::regex_search(result_x0A,match_x0A_Eq,eqRegex)
+            and std::regex_search(result_x0B,match_x0B_Eq,eqRegex)
+            and std::regex_search(result_x1A,match_x1A_Eq,eqRegex)
+            and std::regex_search(result_x1B,match_x1B_Eq,eqRegex)
+
+            ) {
+                unsigned long long lagU;
+                unsigned long long lag_L;
+                unsigned long long lag_x0A;
+                unsigned long long lag_x0B;
+                unsigned long long lag_x1A;
+                unsigned long long lag_x1B;
+
+                unsigned long long UnEqCounterStart;
+                unsigned long long L_nEqCounterStart;
+                unsigned long long x0A_nEqCounterStart;
+                unsigned long long x0B_nEqCounterStart;
+                unsigned long long x1A_nEqCounterStart;
+                unsigned long long x1B_nEqCounterStart;
+
+
+                unsigned long long  UdataNumInEq;
+                 unsigned long long  L_dataNumInEq;
+                unsigned long long  x0A_dataNumInEq;
+                unsigned long long  x0B_dataNumInEq;
+                unsigned long long  x1A_dataNumInEq;
+                unsigned long long  x1B_dataNumInEq;
+
+                /////////////////////////////////////////////////////
+                //parse U
+                //match U lag
                 if (std::regex_search(resultU, matchULag, lagRegex)) {
 
+
                     std::string lagStrU = matchULag.str(1);
-                    unsigned long long lagU = std::stoull(lagStrU);
-                    std::cout << "lag=" << lagU << std::endl;
-                    lag = lagU;
+                     lagU = std::stoull(lagStrU);
+                    std::cout << "lagU=" << lagU << std::endl;
 
 
-                   if( std::regex_search(resultU,matchCounterStart,ctStartRegex)){
-                       this->nEqCounterStart=std::stoull(matchCounterStart.str(1));
-
-                       std::cout<<"nEqCounterStart="<<nEqCounterStart<<std::endl;
-
-                   }
-
-
-                    if(std::regex_search(resultU,matchDataNumEq,dataNumEqRegex)){
-                        this->dataNumInEq=std::stoull(matchDataNumEq.str(1));
-
-                        std::cout<<"dataNumInEq="<<dataNumInEq<<std::endl;
-
-                    }
-
-                    active = false;
+//
 
                 }
 
+                //match UCounterStart
+                if( std::regex_search(resultU,matchUCounterStart,ctStartRegex)){
+                    UnEqCounterStart=std::stoull(matchUCounterStart.str(1));
+
+                    std::cout<<"UnEqCounterStart="<<UnEqCounterStart<<std::endl;
+
+                }
+
+                //match UdataNumInEq
+                if(std::regex_search(resultU,matchUDataNumEq,dataNumEqRegex)){
+                    UdataNumInEq=std::stoull(matchUDataNumEq.str(1));
+
+                    std::cout<<"UdataNumInEq="<<UdataNumInEq<<std::endl;
+
+                }
+                // end of parse U
+                ///////////////////////////////////////////////////////
+                //////////////////////////////////////////////////////
+                //parse L
+
+                //match L lag
+                if(std::regex_search(resultL,match_L_Lag,lagRegex)){
+                std::string lagStrL=match_L_Lag.str(1);
+                    lag_L=std::stoull(lagStrL);
+                    std::cout<<"lag_L="<<lag_L<<std::endl;
+
+
+                }
+
+                //match L_nEqCounterStart
+                if(std::regex_search(resultL,match_L_CounterStart,ctStartRegex)){
+                    L_nEqCounterStart=std::stoull(match_L_CounterStart.str(1));
+                    std::cout<<"L_nEqCounterStart="<<L_nEqCounterStart<<std::endl;
+                }
+
+                //match L_dataNumInEq
+                if(std::regex_search(resultL,match_L_DataNumEq,dataNumEqRegex)){
+                    L_dataNumInEq=std::stoull(match_L_DataNumEq.str(1));
+                    std::cout<<"L_dataNumInEq="<<L_dataNumInEq<<std::endl;
+                }
+
+                // end of parse L
+                //////////////////////////////////////
+
+                /////////////////////////////////////
+                //parse x0A
+
+                //match x0A lag
+                if(std::regex_search(result_x0A,match_x0A_Lag,lagRegex)){
+                    std::string lagStr_x0A=match_x0A_Lag.str(1);
+                    lag_x0A=std::stoull(lagStr_x0A);
+                    std::cout<<"lag_x0A="<<lag_x0A<<std::endl;
+
+
+                }
+
+                //match x0A_nEqCounterStart
+                if(std::regex_search(result_x0A,match_x0A_CounterStart,ctStartRegex)){
+                    std::string x0A_ctStartStr=match_x0A_CounterStart.str(1);
+                    x0A_nEqCounterStart=std::stoull(x0A_ctStartStr);
+                    std::cout<<"x0A_nEqCounterStart="<<x0A_nEqCounterStart<<std::endl;
+
+                }
+
+                // match x0A_dataNumInEq
+
+                if(std::regex_search(result_x0A,match_x0A_DataNumEq,dataNumEqRegex)){
+                    x0A_dataNumInEq=std::stoull(match_x0A_DataNumEq.str(1));
+                    std::cout<<"x0A_dataNumInEq="<<x0A_dataNumInEq<<std::endl;
+                }
+
+                // end of parse x0A
+                ///////////////////////////////////
+
+                ///////////////////////////////////
+                //parse x0B
+
+                //match x0B lag
+                if(std::regex_search(result_x0B,match_x0B_Lag,lagRegex)){
+                    std::string lagStr_x0B=match_x0B_Lag.str(1);
+                    lag_x0B=std::stoull(lagStr_x0B);
+                    std::cout<<"lag_x0B="<<lag_x0B<<std::endl;
+
+                }
+
+                //match x0B_nEqCounterStart
+                if(std::regex_search(result_x0B,match_x0B_CounterStart,ctStartRegex)){
+                    std::string x0B_ctStartStr=match_x0B_CounterStart.str(1);
+                    x0B_nEqCounterStart=std::stoull(x0B_ctStartStr);
+                    std::cout<<"x0B_nEqCounterStart="<<x0B_nEqCounterStart<<std::endl;
+
+                }
+
+                // match x0B_dataNumInEq
+                if(std::regex_search(result_x0B,match_x0B_DataNumEq,dataNumEqRegex)){
+
+                    x0B_dataNumInEq=std::stoull(match_x0B_DataNumEq.str(1));
+                    std::cout<<"x0B_dataNumInEq="<<x0B_dataNumInEq<<std::endl;
+                }
+                // end of parse x0B
+                //////////////////////////////////
+
+                //////////////////////////////////
+                //parse x1A
+
+                //match x1A lag
+                if(std::regex_search(result_x1A,match_x1A_Lag,lagRegex)){
+                    std::string lagStr_x1A=match_x1A_Lag.str(1);
+                    lag_x1A=std::stoull(lagStr_x1A);
+                    std::cout<<"lag_x1A="<<lag_x1A<<std::endl;
+
+                }
+
+                //match x1A_nEqCounterStart
+                if(std::regex_search(result_x1A,match_x1A_CounterStart,ctStartRegex)){
+                    std::string x1A_ctStartStr=match_x1A_CounterStart.str(1);
+                    x1A_nEqCounterStart=std::stoull(x1A_ctStartStr);
+                    std::cout<<"x1A_nEqCounterStart="<<x1A_nEqCounterStart<<std::endl;
+
+
+                }
+
+                // match x1A_dataNumInEq
+                if(std::regex_search(result_x1A,match_x1A_DataNumEq,dataNumEqRegex)){
+                    x1A_dataNumInEq=std::stoull(match_x1A_DataNumEq.str(1));
+                    std::cout<<"x1A_dataNumInEq="<<x1A_dataNumInEq<<std::endl;
+
+                }
+                // end of parse x1A
+                //////////////////////////////////
+
+                ///////////////////////////////////
+                //parse x1B
+
+                //match x1B lag
+                if(std::regex_search(result_x1B,match_x1B_Lag,lagRegex)){
+                    std::string lagStr_x1B=match_x1B_Lag.str(1);
+                    lag_x1B=std::stoull(lagStr_x1B);
+                    std::cout<<"lag_x1B="<<lag_x1B<<std::endl;
+
+                }
+
+                //match x1B_nEqCounterStart
+                if(std::regex_search(result_x1B,match_x1B_CounterStart,ctStartRegex)){
+                    std::string x1B_ctStartStr=match_x1B_CounterStart.str(1);
+                    x1B_nEqCounterStart=std::stoull(x1B_ctStartStr);
+
+
+                }
+
+                // match x1B_dataNumInEq
+                if(std::regex_search(result_x1B,match_x1B_DataNumEq,dataNumEqRegex)){
+                    x1B_dataNumInEq=std::stoull(match_x1B_DataNumEq.str(1));
+                    std::cout<<"x1B_dataNumInEq="<<x1B_dataNumInEq<<std::endl;
+                }
+
+                // end of parse x1B
+                //////////////////////////////////
+
+
+                //use the max of lagU, lag_L, lag_x0A, lag_x0B, lag_x1A, lag_x1B
+
+                std::initializer_list<unsigned long  long > lagsAll=
+                        {lagU,lag_L,lag_x0A,lag_x0B,lag_x1A,lag_x1B};
+
+
+                unsigned long  long maxLag=*std::max_element(lagsAll.begin(),lagsAll.end());
+
+                lag=maxLag;
+                std::cout<<"lag is chosen as "<<lag<<std::endl;
+
+                std::initializer_list<unsigned long long > nCounterStartAll=
+                        {UnEqCounterStart,L_nEqCounterStart,x0A_nEqCounterStart,x0B_nEqCounterStart,x1A_nEqCounterStart,x1B_nEqCounterStart};
+                unsigned long long nCounterStartMax=*std::max_element(nCounterStartAll.begin(),nCounterStartAll.end());
+
+                nEqCounterStart=nCounterStartMax;
+                std::cout<<"nEqCounterStart is chosen as "<<nEqCounterStart<<std::endl;
+
+                std::initializer_list<unsigned long long > numDataPointsAll=
+                        {UdataNumInEq,L_dataNumInEq,x0A_dataNumInEq,x0B_dataNumInEq,x1A_dataNumInEq,x1B_dataNumInEq};
+                unsigned long long  numDataPointsMin=*std::min_element(numDataPointsAll.begin(),numDataPointsAll.end());
+
+                dataNumInEq=numDataPointsMin;
+
+                std::cout<<"dataNumInEq is chosen as "<<dataNumInEq<<std::endl;
+
+
+                active = false;
 
             }//end of regex search for equilibrium
 

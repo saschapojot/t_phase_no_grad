@@ -26,6 +26,7 @@
 #include <cxxabi.h>
 
 #include <fstream>
+#include <initializer_list>
 #include <iostream>
 #include <math.h>
 #include <memory>
