@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     int rowNum=std::stoi(argv[1]);
     int whichT=std::stoi(argv[2]);
     const auto tStart{std::chrono::steady_clock::now()};
-    unsigned long long cellNum=2;
+    unsigned long long cellNum=10;
     auto rd=reader(rowNum,whichT,cellNum);
     rd.searchFiles();
     rd.sortFiles();
