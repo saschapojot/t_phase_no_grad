@@ -320,7 +320,7 @@ public:
 //    int moveNumInOneFlush = 3000;// flush the results to python every moveNumInOneFlush iterations
 //    int flushMaxNum = 7000;
 
-    static const unsigned long long loopMax=100000000;//3000*6000;//max number of loop to reach equilibrium
+    static const unsigned long long loopMax=400000000;//max number of loop to reach equilibrium
     static const unsigned long  long loopToWrite=8000000;
 
     unsigned long long dataNumTotal = 2000;
