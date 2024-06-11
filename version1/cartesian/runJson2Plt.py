@@ -111,7 +111,7 @@ def plt_x(oneTFile):
     """
 
     :param oneTFile: corresponds to one temperature
-    :return: plots of positions, var(x0A), E(x0A), d0A0BMean,d1A1BMean
+    :return: plots of positions, var(x0A), E(x0A), d0A0BMean,d1A1BMean, x0AVar,x1AVar
     """
     matchT=re.search(r"T(\d+(\.\d+)?)",oneTFile)
     TVal=float(matchT.group(1))
@@ -229,7 +229,7 @@ def plt_x(oneTFile):
     plt.savefig(oneTFile+"/"+gridOut)
 
     plt.close()
-    return [x0AVar,x0AMean,d0A0BMean,d1A1BMean]
+    return [x0AVar,x0AMean,d0A0BMean,d1A1BMean,x0AVar,x1AVar]
 
 
 
@@ -242,16 +242,20 @@ UMeanAll=[]
 UVarAll=[]
 d0A0BAll=[]
 d1A1BAll=[]
+varx0AAll=[]
+varx1AAll=[]
 tStatsStart=datetime.now()
 for oneTFile in sortedTFiles:
     UMeanTmp,UVarTmp=pltU(oneTFile)
     UMeanAll.append(UMeanTmp)
     UVarAll.append(UVarTmp)
-    varTmp,meanTmp,d0A0BTmp,d1A1BTmp=plt_x(oneTFile)
+    varTmp,meanTmp,d0A0BTmp,d1A1BTmp,x0AVar,x1AVar=plt_x(oneTFile)
     xAVarAll.append(varTmp)
     xAMeanAll.append(meanTmp)
     d0A0BAll.append(d0A0BTmp)
     d1A1BAll.append(d1A1BTmp)
+    varx0AAll.append(x0AVar)
+    varx1AAll.append(x1AVar)
 
 tStatsEnd=datetime.now()
 print("stats total time: ",tStatsEnd-tStatsStart)
@@ -304,4 +308,18 @@ plt.legend(loc="best")
 plt.xscale("log")
 plt.savefig(pathData+"/intracellDistance.png")
 plt.close()
+
+plt.figure()
+plt.scatter(sortedTVals,varx0AAll,color="blue",label="var(x0A)")
+plt.scatter(sortedTVals,varx1AAll,color="red",label="var(x1A)",s=2)
+plt.title("var(x0A) and var(x1A)")
+plt.xlabel("$T$")
+plt.ylabel("var")
+plt.legend(loc="best")
+plt.xscale("log")
+plt.savefig(pathData+"/varx0Ax1A.png")
+plt.close()
+
+
+
 
