@@ -108,7 +108,7 @@ void reader::parseSummary(){
         //extract lag value
         if (std::regex_search(line, matchLag, lagPattern)) {
             this->lagEst = std::stoull(matchLag.str(1));
-            lagEst=static_cast<unsigned long long>(static_cast<double >(lagEst)*1.5);
+            lagEst=static_cast<unsigned long long>(static_cast<double >(lagEst));
             std::cout << "lagEst=" << lagEst << std::endl;
         }
 
