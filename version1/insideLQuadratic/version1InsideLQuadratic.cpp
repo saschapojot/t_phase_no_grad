@@ -1,13 +1,13 @@
 //
 // Created by polya on 5/23/24.
 //
-#include "version1QuadraticPBC2Atom.hpp"
+#include "version1InsideLQuadratic.hpp"
 
 
-void version1Quadratic::parseCSV(const int &rowNum, double &a1, double &a2, double &c1, double &c2) {
+void version1InsideLQuadratic::parseCSV(const int &rowNum, double &a1, double &a2, double &c1, double &c2,double &mA, double &mB) {
 
-    std::string filePath = "./version1Input/1d/quadratic/quadraticParams.csv";
-    std::string pyFile = "./version1/quadraticPBC/readCSV.py";
+    std::string filePath = "./version1Input/1d/insideLQuadratic/insideLQuadratic.csv";
+    std::string pyFile = "./version1/insideLQuadratic/readCSV.py";
     std::string commandToReadCSV = "python3 " + pyFile + " " + filePath + " " + std::to_string(rowNum);
 
     std::string result = execPython(commandToReadCSV.c_str());
@@ -36,6 +36,19 @@ void version1Quadratic::parseCSV(const int &rowNum, double &a1, double &a2, doub
        c2 = std::stod(match_c2[1].str());
     }
 
+    std::regex pattern_mA("mA([+-]?\\d+(\\.\\d+)?)mB");
+    std::smatch match_mA;
+    if (std::regex_search(result, match_mA, pattern_mA)) {
+        mA = std::stod(match_mA[1].str());
+    }
+
+
+    std::regex pattern_mB("mB([+-]?\\d+(\\.\\d+)?)");
+    std::smatch match_mB;
+    if (std::regex_search(result, match_mB, pattern_mB)) {
+        mB = std::stod(match_mB[1].str());
+    }
+
 
 
 
@@ -54,7 +67,7 @@ void version1Quadratic::parseCSV(const int &rowNum, double &a1, double &a2, doub
 ///
 /// @param cmd python execution string
 /// @return signal from the python
-std::string version1Quadratic::execPython(const char *cmd) {
+std::string version1InsideLQuadratic::execPython(const char *cmd) {
     std::array<char, 4096*10> buffer; // Buffer to store command output
     std::string result; // String to accumulate output
 
@@ -81,8 +94,8 @@ std::string version1Quadratic::execPython(const char *cmd) {
 /// @param xB positions of atom B
 /// @param L total length
 /// @return beta*potential
-double version1Quadratic::f(const arma::dcolvec &xA, const arma::dcolvec &xB, const double & L){
-    return this->beta * ((*potFuncPtr)(xA, xB,L));
+double version1InsideLQuadratic::f(const double &r,const double& theta0A, const double &theta0B, const double&theta1A, const double&theta1B){
+    return this->beta * ((*potFuncPtr)(r,theta0A ,theta0B,theta1A,theta1B));
 
 
 
@@ -90,54 +103,52 @@ double version1Quadratic::f(const arma::dcolvec &xA, const arma::dcolvec &xB, co
 
 
 ///
-/// @param xACurr positions of atom A
-/// @param xBCurr positions of atom B
-/// @param LCurr total length
-/// @param zANext proposed positions of atom A
-/// @param zBNext proposed positions of atom B
-/// @param LNext proposed value of length
-void version1Quadratic::proposal(const arma::dcolvec &xACurr, const arma::dcolvec &xBCurr, const double &LCurr,
-              arma::dcolvec &zANext, arma::dcolvec &zBNext, double &LNext){
-
-    std::random_device rd;
-    std::ranlux24_base gen(rd());
-    //fix left end (0A)
-    zANext(0)=xACurr(0);
-
-    for (int j = 1; j < N; j++) {
-        std::normal_distribution<double> dTmp(xACurr(j), stddev);
-        zANext(j) = dTmp(gen);
-    }
+/// @param rCurr
+/// @param theta0BCurr
+/// @param theta1ACurr
+/// @param theta1BCurr
+/// @param rNext
+/// @param theta0BNext
+/// @param theta1ANext
+/// @param theta1BNext
+void version1InsideLQuadratic::proposal(const double &rCurr, const double& theta0ACurr,const double&theta0BCurr, const double& theta1ACurr,const double &theta1BCurr,
+                                        double & rNext, double &theta0ANext, double &theta0BNext, double &theta1ANext, double &theta1BNext) {
 
 
-    for (int j = 0; j < N; j++) {
-        std::normal_distribution<double> dTmp(xBCurr(j), stddev);
-        zBNext(j) = dTmp(gen);
-    }
+    theta0ANext = generate_nearby_0_2pi(theta0ACurr, stddev);
+    theta0BNext = generate_nearby_0_2pi(theta0BCurr, stddev);
 
-    std::normal_distribution<double> dLast(LCurr,stddev);
-    LNext=dLast(gen);
-    //???????????????????
+
+    theta1ANext = generate_nearby_0_2pi(theta1ACurr, stddev);
+
+
+    theta1BNext = generate_nearby_0_2pi(theta1BCurr, stddev);
+
+    //next r
+
+    rNext = generate_nearby_positive_value(rCurr, stddev);
 
 
 }
 
 
 ///
-/// @param xA current positions of atom A
-/// @param xB current positions of atom B
-/// @param LCurr total length
-/// @param zA proposed positions of atom A
-/// @param zB proposed positions of atom B
-/// @param LNext proposed value of length
+/// @param rCurr
+/// @param theta0BCurr
+/// @param theta1ACurr
+/// @param theta1BCurr
+/// @param rNext
+/// @param theta0BNext
+/// @param theta1ANext
+/// @param theta1BNext
 /// @return
-double version1Quadratic::acceptanceRatio(const arma::dcolvec &xA, const arma::dcolvec &xB,const double& LCurr,
-                       const arma::dcolvec &zA, const arma::dcolvec &zB, const double &LNext){
+double version1InsideLQuadratic::acceptanceRatio(const double &rCurr,const double &theta0ACurr, const double &theta0BCurr, const double& theta1ACurr, const double &theta1BCurr,
+                                                 const double &rNext, const double&theta0ANext, const double &theta0BNext, const double &theta1ANext, const double &theta1BNext){
 
 
-    double numerator = -f(zA, zB, LNext);
+    double numerator = -f(rNext,theta0ANext, theta0BNext, theta1ANext, theta1BNext);
 
-    double denominator = -f(xA, xB,LCurr);
+    double denominator = -f(rCurr,theta0ACurr,theta0BCurr,theta1ACurr,theta1BCurr);
 //    double UCurr=(*potFuncPtr)(xA, xB,LCurr);
 //    double UNext=(*potFuncPtr)(zA, zB, LNext);
 //    std::cout<<"UCurr="<<UCurr<<", UNext="<<UNext<<std::endl;
@@ -150,18 +161,19 @@ double version1Quadratic::acceptanceRatio(const arma::dcolvec &xA, const arma::d
 
 
 ///
-/// @param xAInit initial positions of A
-/// @param xBInit initial positions of B
-/// @param LInit
-void version1Quadratic::initPositionsEquiDistance(arma::dcolvec &xAInit, arma::dcolvec &xBInit, double &LInit){
+/// @param rInit
+/// @param theta0BInit
+/// @param theta1AInit
+/// @param theta1BInit
+void version1InsideLQuadratic::initPositionsEquiDistance(double &rInit,double &theta0AInit, double &theta0BInit,  double &theta1AInit, double &theta1BInit){
     double a = 1.5;
-    for (int n = 0; n < N; n++) {
-        double nDB = static_cast<double >(n);
-        xAInit(n) = a * nDB * 2.0;
-        xBInit(n) = a * (2.0 * nDB + 1);
-    }
+    rInit=2*a;
+    theta0AInit=0.1*PI;
+    theta0BInit=0.9*PI;
 
-    LInit=xBInit(N-1)+2*a;
+    theta1AInit=1*PI;
+
+    theta1BInit=1.5*PI;
 
 
 
@@ -169,16 +181,19 @@ void version1Quadratic::initPositionsEquiDistance(arma::dcolvec &xAInit, arma::d
 
 
 ///
-/// @param lag decorrelation length
-/// @param loopTotal total mc steps
-/// @param equilibrium whether equilibrium has reached
-/// @param same whether all values of potential are the same
-/// @param xALast last positions of atom A
-/// @param xBLast last positions of atom B
-/// @param LLast last value of total length
-void version1Quadratic::readEqMc(unsigned long long &lag, unsigned long long&loopTotal, bool &equilibrium, bool &same, arma::dcolvec &xALast,
-                                   arma::dcolvec &xBLast, double &LLast,
-                                   double * U_ptr,double *L_ptr, double *xA_ptr, double *xB_ptr ){
+/// @param lag
+/// @param loopEq
+/// @param rInit
+/// @param theta0BInit
+/// @param theta1AInit
+/// @param theta1BInit
+/// @param U_ptr
+/// @param r_ptr
+/// @param theta0B_ptr
+/// @param theta1A_ptr
+/// @param theta1B_ptr
+void version1InsideLQuadratic::readEqMc(unsigned long long &lag,  unsigned long long &loopTotal,bool &equilibrium, bool& same, double &rLast,
+                                        double &theta0ALast, double &theta0BLast,  double &theta1ALast, double &theta1BLast,double * U_ptr,double *r_ptr, double *theta0A_ptr,double *theta0B_ptr, double *theta1A_ptr, double * theta1B_ptr){
 
     std::random_device rd;
     std::ranlux24_base e2(rd());
@@ -196,24 +211,44 @@ void version1Quadratic::readEqMc(unsigned long long &lag, unsigned long long&loo
     std::string outDir = "./version1Data/1d/func" + funcName +"/row"+std::to_string(rowNum)+ "/T" + TStr + "/";
     std::string outUAllPickleSubDir = outDir + "UAllPickle/";
     std::string outUAllBinSubDir = outDir + "UAllBin/";
-    std::string out_xA_AllBinSubDir = outDir + "xA_AllBin/";
-    std::string out_xB_AllBinSubDir = outDir + "xB_AllBin/";
-    std::string outLAllBinSubDir=outDir+"LAllBin/";
+
+    std::string out_r_AllBinSubDir = outDir + "r_AllBin/";
+
+    std::string out_theta0A_AllBinSubDir=outDir+"theta0A_AllBin/";
+    std::string out_theta0B_AllBinSubDir=outDir+"theta0B_AllBin/";
+
+    std::string out_theta1A_AllBinSubDir=outDir+"theta1A_AllBin/";
+
+    std::string out_theta1B_AllBinSubDir=outDir+"theta1B_AllBin/";
+
+
+
     if (!fs::is_directory(outUAllPickleSubDir) || !fs::exists(outUAllPickleSubDir)) {
         fs::create_directories(outUAllPickleSubDir);
     }
     if (!fs::is_directory(outUAllBinSubDir) || !fs::exists(outUAllBinSubDir)) {
         fs::create_directories(outUAllBinSubDir);
     }
-    if (!fs::is_directory(out_xA_AllBinSubDir) || !fs::exists(out_xA_AllBinSubDir)) {
-        fs::create_directories(out_xA_AllBinSubDir);
-    }
-    if (!fs::is_directory(out_xB_AllBinSubDir ) || !fs::exists(out_xB_AllBinSubDir )) {
-        fs::create_directories(out_xB_AllBinSubDir );
+    if (!fs::is_directory(out_r_AllBinSubDir) || !fs::exists(out_r_AllBinSubDir)) {
+        fs::create_directories(out_r_AllBinSubDir);
     }
 
-    if (!fs::is_directory(outLAllBinSubDir ) || !fs::exists(outLAllBinSubDir )) {
-        fs::create_directories(outLAllBinSubDir );
+    if (!fs::is_directory(out_theta0A_AllBinSubDir) || !fs::exists(out_theta0A_AllBinSubDir)) {
+        fs::create_directories(out_theta0A_AllBinSubDir);
+    }
+
+
+
+    if (!fs::is_directory(out_theta0B_AllBinSubDir ) || !fs::exists(out_theta0B_AllBinSubDir )) {
+        fs::create_directories(out_theta0B_AllBinSubDir );
+    }
+
+    if (!fs::is_directory(out_theta1A_AllBinSubDir ) || !fs::exists(out_theta1A_AllBinSubDir )) {
+        fs::create_directories(out_theta1A_AllBinSubDir );
+    }
+
+    if (!fs::is_directory(out_theta1B_AllBinSubDir ) || !fs::exists(out_theta1B_AllBinSubDir )) {
+        fs::create_directories(out_theta1B_AllBinSubDir );
     }
 //    std::cout<<"loop total="<<loopMax<<std::endl;
     std::regex stopRegex("stop");
@@ -236,30 +271,20 @@ void version1Quadratic::readEqMc(unsigned long long &lag, unsigned long long&loo
     std::smatch matchCounterStart;
     std::smatch matchDataNumEq;
 
-//    std::unique_ptr<double[]> U_ptr;
-//    std::unique_ptr<double[]> L_ptr;
-//    std::unique_ptr<double[]> xA_ptr;
-//    std::unique_ptr<double[]> xB_ptr;
-//
-//    try{
-//        U_ptr=std::make_unique<double[]>(loopMax);
-//         L_ptr=std::make_unique<double[]>(loopMax);
-//        xA_ptr=std::make_unique<double[]>(loopMax*N);
-//         xB_ptr=std::make_unique<double[]>(loopMax*N);
-//    }
-//    catch (const std::bad_alloc& e) {
-//        std::cerr << "Memory allocation error: " << e.what() << std::endl;
-//    } catch (const std::exception& e) {
-//        std::cerr << "Exception: " << e.what() << std::endl;
-//    }
 
 
-    arma::dcolvec xACurr(N);
-    arma::dcolvec xBCurr(N);
-    double LCurr=0;
 
-    this->initPositionsEquiDistance(xACurr, xBCurr,LCurr);
-    double UCurr = (*potFuncPtr)(xACurr, xBCurr,LCurr);
+
+
+    double rCurr;
+    double theta0ACurr;
+    double theta0BCurr;
+    double theta1ACurr;
+    double theta1BCurr;
+
+
+    this->initPositionsEquiDistance(rCurr,theta0ACurr,theta0BCurr,theta1ACurr,theta1BCurr);
+    double UCurr = (*potFuncPtr)(rCurr,theta0ACurr,theta0BCurr,theta1ACurr,theta1BCurr);
     int lpNum=0;
     bool active = true;
     const auto tMCStart{std::chrono::steady_clock::now()};
@@ -268,19 +293,24 @@ void version1Quadratic::readEqMc(unsigned long long &lag, unsigned long long&loo
 
     while(lpNum<this->loopMax and active==true){
         //propose a move
-        arma::dcolvec xANext = arma::dcolvec(N);
-        arma::dcolvec xBNext = arma::dcolvec(N);
-        double LNext;
-        proposal(xACurr, xBCurr,LCurr, xANext, xBNext,LNext);
-        double r = acceptanceRatio(xACurr, xBCurr,LCurr, xANext, xBNext,LNext);
+        double rNext;
+        double theta0ANext;
+        double theta0BNext;
+        double theta1ANext;
+        double theta1BNext;
+
+        proposal(rCurr,theta0ACurr,theta0BCurr,theta1ACurr,theta1BCurr,rNext,theta0ANext,theta0BNext,theta1ANext,theta1BNext);
+        double r = acceptanceRatio(rCurr,theta0ACurr,theta0BCurr,theta1ACurr,theta1BCurr,rNext,theta0ANext,theta0BNext,theta1ANext,theta1BNext);
         double u = distUnif01(e2);
 //        double UTmp=UCurr;
         if (u <= r) {
 //                std::cout<<"UCurr="<<UCurr<<std::endl;
-            xACurr = xANext;
-            xBCurr = xBNext;
-            LCurr=LNext;
-            UCurr = (*potFuncPtr)(xACurr, xBCurr,LCurr);
+            rCurr=rNext;
+            theta0ACurr=theta0ANext;
+            theta0BCurr=theta0BNext;
+            theta1ACurr=theta1ANext;
+            theta1BCurr=theta1BNext;
+            UCurr = (*potFuncPtr)(rCurr,theta0ACurr,theta0BCurr,theta1ACurr,theta1BCurr);
 //                std::cout<<"UNext="<<UCurr<<std::endl;
 //            double UDiff=UCurr-UTmp;
 //            std::cout<<"UDiff="<<UDiff<<std::endl;
@@ -288,17 +318,16 @@ void version1Quadratic::readEqMc(unsigned long long &lag, unsigned long long&loo
         }//end of accept-reject
 
         U_ptr[lpNum]=UCurr;
-        L_ptr[lpNum]=LCurr;
-        for(unsigned long  long i=0;i<N;i++){
-            xA_ptr[i+lpNum*N]=xACurr(i);
-            xB_ptr[i+lpNum*N]=xBCurr(i);
-
-        }//end writing to array
+        r_ptr[lpNum]=rCurr;
+        theta0A_ptr[lpNum]=theta0ACurr;
+        theta0B_ptr[lpNum]=theta0BCurr;
+        theta1A_ptr[lpNum]=theta1ACurr;
+        theta1B_ptr[lpNum]=theta1BCurr;
 
         //write to file every loopToWrite loops, and inquire equilibrium
         if ((lpNum+1)%loopToWrite==0 and lpNum>1){
             unsigned long long sizeOfArray=lpNum+1;
-            unsigned long long sizeOfCoords=sizeOfArray*N;
+
 //            unsigned long long lpStart=0;
 
             std::string filenameMiddle="loopStart0ReachEq";
@@ -308,15 +337,20 @@ void version1Quadratic::readEqMc(unsigned long long &lag, unsigned long long&loo
             save_to_bin_file(U_ptr,sizeOfArray,outUBinFileName);
 
 
-            std::string out_xA_BinFileName=out_xA_AllBinSubDir+filenameMiddle+".xA_All.bin";
-            save_to_bin_file(xA_ptr,sizeOfCoords,out_xA_BinFileName);
+            std::string out_r_BinFileName=out_r_AllBinSubDir+filenameMiddle+".r.bin";
+            save_to_bin_file(r_ptr,sizeOfArray,out_r_BinFileName);
 
-            std::string out_xB_BinFileName=out_xB_AllBinSubDir+filenameMiddle+".xB_All.bin";
-            save_to_bin_file(xB_ptr,sizeOfCoords,out_xB_BinFileName);
+            std::string out_theta0A_BinFileName=out_theta0A_AllBinSubDir+filenameMiddle+".theta0A_All.bin";
+            save_to_bin_file(theta0A_ptr,sizeOfArray,out_theta0A_BinFileName);
 
-            std::string outLBinFileName=outLAllBinSubDir+filenameMiddle+".LAll.bin";
-            save_to_bin_file(L_ptr,sizeOfArray,outLBinFileName);
+            std::string out_theta0B_BinFileName=out_theta0B_AllBinSubDir+filenameMiddle+".theta0B_All.bin";
+            save_to_bin_file(theta0B_ptr,sizeOfArray,out_theta0B_BinFileName);
 
+            std::string out_theta1A_BinFileName=out_theta1A_AllBinSubDir+filenameMiddle+".theta1A_All.bin";
+            save_to_bin_file(theta1A_ptr,sizeOfArray,out_theta1A_BinFileName);
+
+            std::string out_theta1B_BinFileName=out_theta1B_AllBinSubDir+filenameMiddle+".theta1B_All.bin";
+            save_to_bin_file(theta1B_ptr,sizeOfArray,out_theta1B_BinFileName);
 
             const auto tWriteEnd{std::chrono::steady_clock::now()};
 
@@ -418,9 +452,12 @@ void version1Quadratic::readEqMc(unsigned long long &lag, unsigned long long&loo
 
     }//end while
 
-    xALast=xACurr;
-    xBLast=xBCurr;
-    LLast=LCurr;
+    rLast=rCurr;
+    theta0ALast=theta0ACurr;
+    theta0BLast=theta0BCurr;
+    theta1ALast=theta1ACurr;
+    theta1BLast=theta1BCurr;
+
     equilibrium = !active;
     loopTotal=lpNum;
 
@@ -443,14 +480,19 @@ void version1Quadratic::readEqMc(unsigned long long &lag, unsigned long long&loo
 
 
 ///
-/// @param lag decorrelation length
-/// @param loopEq total loop numbers in reaching equilibrium
-/// @param xA_init xA from readEqMc
-/// @param xB_init xB from readEqMc
-/// @param LInit L from readEqMc
-void version1Quadratic::executionMCAfterEq(const unsigned long long &lag, const unsigned long long &loopEq, const arma::dcolvec &xA_init,
-                        const arma::dcolvec &xB_init, const double &LInit,
-                                             double * U_ptr,double *L_ptr, double *xA_ptr, double *xB_ptr ) {
+/// @param lag
+/// @param loopEq
+/// @param rInit
+/// @param theta0BInit
+/// @param theta1AInit
+/// @param theta1BInit
+/// @param U_ptr
+/// @param r_ptr
+/// @param theta0B_ptr
+/// @param theta1A_ptr
+/// @param theta1B_ptr
+void version1InsideLQuadratic::executionMCAfterEq(const unsigned long long &lag, const unsigned long long &loopEq, const double &rInit,
+                                                  const double &theta0AInit, const double &theta0BInit, const double &theta1AInit, const double &theta1BInit,double * U_ptr,double *r_ptr,double *theta0A_ptr, double *theta0B_ptr, double *theta1A_ptr, double * theta1B_ptr) {
 
 
     if (dataNumTotal <= dataNumInEq) {
@@ -467,28 +509,16 @@ void version1Quadratic::executionMCAfterEq(const unsigned long long &lag, const 
     std::cout<<"lastLoopNum="<<lastLoopNum<<std::endl;
 
 
-//    std::unique_ptr<double[]> U_ptr;
-//    std::unique_ptr<double[]> L_ptr;
-//    std::unique_ptr<double[]> xA_ptr;
-//    std::unique_ptr<double[]> xB_ptr;
-//
-//    try {
-//        U_ptr = std::make_unique<double[]>(writeInterval);
-//        L_ptr = std::make_unique<double[]>(writeInterval);
-//        xA_ptr = std::make_unique<double[]>(writeInterval * N);
-//        xB_ptr = std::make_unique<double[]>(writeInterval * N);
-//    }
-//    catch (const std::bad_alloc &e) {
-//        std::cerr << "Memory allocation error: " << e.what() << std::endl;
-//    } catch (const std::exception &e) {
-//        std::cerr << "Exception: " << e.what() << std::endl;
-//    }
 
-    arma::dcolvec xACurr(xA_init);
-    arma::dcolvec xBCurr(xB_init);
 
-    double LCurr = LInit;
-    double UCurr = (*potFuncPtr)(xACurr, xBCurr, LCurr);
+    double rCurr(rInit);
+    double theta0ACurr(theta0AInit);
+    double theta0BCurr(theta0BInit);
+    double theta1ACurr(theta1AInit);
+    double theta1BCurr(theta1BInit);
+
+
+    double UCurr = (*potFuncPtr)(rCurr,theta0ACurr,theta0BCurr,theta1ACurr,theta1BCurr);
     std::random_device rd;
     std::ranlux24_base e2(rd());
     std::uniform_real_distribution<> distUnif01(0, 1);//[0,1)
@@ -504,9 +534,16 @@ void version1Quadratic::executionMCAfterEq(const unsigned long long &lag, const 
     std::string outDir = "./version1Data/1d/func" + funcName + "/row" + std::to_string(rowNum) + "/T" + TStr + "/";
     std::string outUAllPickleSubDir = outDir + "UAllPickle/";
     std::string outUAllBinSubDir = outDir + "UAllBin/";
-    std::string out_xA_AllBinSubDir = outDir + "xA_AllBin/";
-    std::string out_xB_AllBinSubDir = outDir + "xB_AllBin/";
-    std::string outLAllBinSubDir = outDir + "LAllBin/";
+
+    std::string out_r_AllBinSubDir = outDir + "r_AllBin/";
+
+    std::string out_theta0A_AllBinSubDir=outDir+"theta0A_AllBin/";
+    std::string out_theta0B_AllBinSubDir=outDir+"theta0B_AllBin/";
+
+    std::string out_theta1A_AllBinSubDir=outDir+"theta1A_AllBin/";
+
+    std::string out_theta1B_AllBinSubDir=outDir+"theta1B_AllBin/";
+
     const auto tMCStart{std::chrono::steady_clock::now()};
 //remainingLoopNum-lastLoopNum
     unsigned long long lpNum = 0;
@@ -514,51 +551,61 @@ void version1Quadratic::executionMCAfterEq(const unsigned long long &lag, const 
 
 
         //propose a move
-        arma::dcolvec xANext = arma::dcolvec(N);
-        arma::dcolvec xBNext = arma::dcolvec(N);
-        double LNext = 0;
-        proposal(xACurr, xBCurr, LCurr, xANext, xBNext, LNext);
-        double r = acceptanceRatio(xACurr, xBCurr, LCurr, xANext, xBNext, LNext);
+        double rNext;
+        double theta0ANext;
+        double theta0BNext;
+        double theta1ANext;
+        double theta1BNext;
+        proposal(rCurr,theta0ACurr,theta0BCurr,theta1ACurr,theta1BCurr,rNext,theta0ANext,theta0BNext,theta1ANext,theta1BNext);
+        double r = acceptanceRatio(rCurr,theta0ACurr,theta0BCurr,theta1ACurr,theta1BCurr,rNext,theta0ANext,theta0BNext,theta1ANext,theta1BNext);
         double u = distUnif01(e2);
         if (u <= r) {
-            xACurr = xANext;
-            xBCurr = xBNext;
-            LCurr = LNext;
-            UCurr = (*potFuncPtr)(xACurr, xBCurr, LCurr);
+            rCurr=rNext;
+            theta0ACurr=theta0ANext;
+            theta0BCurr=theta0BNext;
+            theta1ACurr=theta1ANext;
+            theta1BCurr=theta1BNext;
+            UCurr = (*potFuncPtr)(rCurr,theta0ACurr,theta0BCurr,theta1ACurr,theta1BCurr);
         }//end of accept-reject
 
         unsigned long long indOfArrayU = lpNum % writeInterval;
 
 
         U_ptr[indOfArrayU] = UCurr;
-        L_ptr[indOfArrayU] = LCurr;
+        r_ptr[indOfArrayU]=rCurr;
+        theta0A_ptr[indOfArrayU]=theta0ACurr;
+        theta0B_ptr[indOfArrayU]=theta0BCurr;
+        theta1A_ptr[indOfArrayU]=theta1ACurr;
+        theta1B_ptr[indOfArrayU]=theta1BCurr;
 
-        for (unsigned long long i = 0; i < N; i++) {
-            xA_ptr[i + indOfArrayU * N] = xACurr(i);
-            xB_ptr[i + indOfArrayU * N] = xBCurr(i);
 
-        }//end writing to array
 
 
         //write to file every writeInterval loops
 
         if ((lpNum + 1) % loopToWrite == 0 and lpNum > 1) {
             unsigned long long sizeOfArrayU = indOfArrayU + 1;
-            unsigned long long sizeOfCoords = N * sizeOfArrayU;
+
             std::string filenameMiddle = "loopEnd" + std::to_string(lpNum);
             std::string outUPicleFileName = outUAllPickleSubDir + filenameMiddle + ".UAll.pkl";
             std::string outUBinFileName = outUAllBinSubDir + filenameMiddle + ".UAll.bin";
             save_array_to_pickle(U_ptr, sizeOfArrayU, outUPicleFileName);
             save_to_bin_file(U_ptr, sizeOfArrayU, outUBinFileName);
 
-            std::string out_xA_BinFileName = out_xA_AllBinSubDir + filenameMiddle + ".xA_All.bin";
-            save_to_bin_file(xA_ptr, sizeOfCoords, out_xA_BinFileName);
+            std::string out_r_BinFileName=out_r_AllBinSubDir+filenameMiddle+".r.bin";
+            save_to_bin_file(r_ptr,sizeOfArrayU,out_r_BinFileName);
 
-            std::string out_xB_BinFileName = out_xB_AllBinSubDir + filenameMiddle + ".xB_All.bin";
-            save_to_bin_file(xB_ptr, sizeOfCoords, out_xB_BinFileName);
+            std::string out_theta0A_BinFileName=out_theta0A_AllBinSubDir+filenameMiddle+".theta0A_All.bin";
+            save_to_bin_file(theta0A_ptr,sizeOfArrayU,out_theta0A_BinFileName);
 
-            std::string outLBinFileName = outLAllBinSubDir + filenameMiddle + ".LAll.bin";
-            save_to_bin_file(L_ptr, sizeOfArrayU, outLBinFileName);
+            std::string out_theta0B_BinFileName=out_theta0B_AllBinSubDir+filenameMiddle+".theta0B_All.bin";
+            save_to_bin_file(theta0B_ptr,sizeOfArrayU,out_theta0B_BinFileName);
+
+            std::string out_theta1A_BinFileName=out_theta1A_AllBinSubDir+filenameMiddle+".theta1A_All.bin";
+            save_to_bin_file(theta1A_ptr,sizeOfArrayU,out_theta1A_BinFileName);
+
+            std::string out_theta1B_BinFileName=out_theta1B_AllBinSubDir+filenameMiddle+".theta1B_All.bin";
+            save_to_bin_file(theta1B_ptr,sizeOfArrayU,out_theta1B_BinFileName);
 
             const auto tWriteEnd{std::chrono::steady_clock::now()};
 
@@ -575,28 +622,32 @@ void version1Quadratic::executionMCAfterEq(const unsigned long long &lag, const 
     for(unsigned long long lpFinal=0;lpFinal<lastLoopNum;lpFinal++){
 
         //propose a move
-        arma::dcolvec xANext = arma::dcolvec(N);
-        arma::dcolvec xBNext = arma::dcolvec(N);
-        double LNext = 0;
-        proposal(xACurr, xBCurr, LCurr, xANext, xBNext, LNext);
-        double r = acceptanceRatio(xACurr, xBCurr, LCurr, xANext, xBNext, LNext);
+        double rNext;
+        double theta0ANext;
+        double theta0BNext;
+        double theta1ANext;
+        double theta1BNext;
+        proposal(rCurr,theta0ACurr,theta0BCurr,theta1ACurr,theta1BCurr,rNext,theta0ANext,theta0BNext,theta1ANext,theta1BNext);
+        double r = acceptanceRatio(rCurr,theta0ACurr,theta0BCurr,theta1ACurr,theta1BCurr,rNext,theta0ANext,theta0BNext,theta1ANext,theta1BNext);
         double u = distUnif01(e2);
         if (u <= r) {
-            xACurr = xANext;
-            xBCurr = xBNext;
-            LCurr = LNext;
-            UCurr = (*potFuncPtr)(xACurr, xBCurr, LCurr);
+            rCurr=rNext;
+            theta0ACurr=theta0ANext;
+            theta0BCurr=theta0BNext;
+            theta1ACurr=theta1ANext;
+            theta1BCurr=theta1BNext;
+            UCurr = (*potFuncPtr)(rCurr,theta0ACurr,theta0BCurr,theta1ACurr,theta1BCurr);
         }//end of accept-reject
 
 
         U_ptr[lpFinal]=UCurr;
-        L_ptr[lpFinal]=LCurr;
+        r_ptr[lpFinal]=rCurr;
+        theta0A_ptr[lpFinal]=theta0ACurr;
+        theta0B_ptr[lpFinal]=theta0BCurr;
+        theta1A_ptr[lpFinal]=theta1ACurr;
+        theta1B_ptr[lpFinal]=theta1BCurr;
 
-        for(unsigned long long i=0;i<N;i++){
-            xA_ptr[i+lpFinal*N]=xACurr(i);
-            xB_ptr[i+lpFinal*N]=xBCurr(i);
 
-        }//end writing to array
 
 
     }//end of final for loops
@@ -608,15 +659,20 @@ void version1Quadratic::executionMCAfterEq(const unsigned long long &lag, const 
     save_array_to_pickle(U_ptr,lastLoopNum,outUPicleFileName);
     save_to_bin_file(U_ptr,lastLoopNum,outUBinFileName);
 
-    std::string out_xA_BinFileName = out_xA_AllBinSubDir + filenameMiddle + ".xA_All.bin";
-    save_to_bin_file(xA_ptr,lastLoopNum*N,out_xA_BinFileName);
-    std::string out_xB_BinFileName = out_xB_AllBinSubDir + filenameMiddle + ".xB_All.bin";
+    std::string out_r_BinFileName=out_r_AllBinSubDir+filenameMiddle+".r.bin";
+    save_to_bin_file(r_ptr,lastLoopNum,out_r_BinFileName);
 
-    save_to_bin_file(xB_ptr,lastLoopNum*N,out_xB_BinFileName);
+    std::string out_theta0A_BinFileName=out_theta0A_AllBinSubDir+filenameMiddle+".theta0A_All.bin";
+    save_to_bin_file(theta0A_ptr,lastLoopNum,out_theta0A_BinFileName);
 
-    std::string outLBinFileName = outLAllBinSubDir + filenameMiddle + ".LAll.bin";
+    std::string out_theta0B_BinFileName=out_theta0B_AllBinSubDir+filenameMiddle+".theta0B_All.bin";
+    save_to_bin_file(theta0B_ptr,lastLoopNum,out_theta0B_BinFileName);
 
-    save_to_bin_file(L_ptr,lastLoopNum,outLBinFileName);
+    std::string out_theta1A_BinFileName=out_theta1A_AllBinSubDir+filenameMiddle+".theta1A_All.bin";
+    save_to_bin_file(theta1A_ptr,lastLoopNum,out_theta1A_BinFileName);
+
+    std::string out_theta1B_BinFileName=out_theta1B_AllBinSubDir+filenameMiddle+".theta1B_All.bin";
+    save_to_bin_file(theta1B_ptr,lastLoopNum,out_theta1B_BinFileName);
 
     const auto tMCEnd{std::chrono::steady_clock::now()};
 
