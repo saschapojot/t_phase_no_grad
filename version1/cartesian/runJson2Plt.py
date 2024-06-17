@@ -120,7 +120,7 @@ def plt_x(oneTFile):
     """
 
     :param oneTFile: corresponds to one temperature
-    :return: plots of positions, var(x0A), E(x0A), d0A0BMean,d1A1BMean, x0AVar,x1AVar
+    :return: plots of positions, var(x0A), E(x0A), d0A0BMean,d1A1BMean, x0AVar,x1AVar, y0Meam,y0Sd, LMean,LVar
     """
     matchT=re.search(r"T(\d+(\.\d+)?)",oneTFile)
     TVal=float(matchT.group(1))
@@ -142,7 +142,9 @@ def plt_x(oneTFile):
 
     LVec=LData["L"]
 
-
+    LMean=np.mean(LVec)
+    LVar=np.var(LVec,ddof=1)
+    # LSd=np.sqrt(LVar)
 
 
 
@@ -150,6 +152,7 @@ def plt_x(oneTFile):
     d0B1AVec=[]
     d1A1BVec=[]
     d1B0AVec=[]
+    y0Vec=[]
     for i in range(0,len(x0BVec)):
         LTmp=LVec[i]
         x0ATmp=x0AVec[i]
@@ -160,6 +163,7 @@ def plt_x(oneTFile):
         d0B1AVec.append(x1ATmp-x0BTmp)
         d1A1BVec.append(x1BTmp-x1ATmp)
         d1B0AVec.append(x0ATmp-x1BTmp+LTmp)
+        y0Vec.append(x0BTmp-x0ATmp)
 
     # #summary of distance between neighboring points
     d0A0BMean=np.mean(d0A0BVec)
@@ -190,6 +194,10 @@ def plt_x(oneTFile):
     sd_A=[x0ASd,x1ASd]
     pos_B=[x0BMean,x1BMean]
     sd_B=[x0BSd,x1BSd]
+
+    y0Mean=np.mean(y0Vec)
+    y0Var=np.var(y0Vec,ddof=1)
+    y0Sd=np.sqrt(y0Var)
 
 
 
@@ -238,7 +246,7 @@ def plt_x(oneTFile):
     plt.savefig(oneTFile+"/"+gridOut)
 
     plt.close()
-    return [x0AVar,x0AMean,d0A0BMean,d1A1BMean,x0AVar,x1AVar]
+    return [x0AVar,x0AMean,d0A0BMean,d1A1BMean,x0AVar,x1AVar,y0Mean,y0Sd,LMean,LVar]
 
 
 
@@ -253,18 +261,28 @@ d0A0BAll=[]
 d1A1BAll=[]
 varx0AAll=[]
 varx1AAll=[]
+y0All=[]
+sd_y0All=[]
+
+LMeanAll=[]
+LVarAll=[]
 tStatsStart=datetime.now()
 for oneTFile in sortedTFiles:
     UMeanTmp,UVarTmp=pltU(oneTFile)
     UMeanAll.append(UMeanTmp)
     UVarAll.append(UVarTmp)
-    varTmp,meanTmp,d0A0BTmp,d1A1BTmp,x0AVar,x1AVar=plt_x(oneTFile)
+    varTmp,meanTmp,d0A0BTmp,d1A1BTmp,x0AVar,x1AVar,y0Mean,y0Sd,LMean,LVar=plt_x(oneTFile)
     xAVarAll.append(varTmp)
     xAMeanAll.append(meanTmp)
     d0A0BAll.append(d0A0BTmp)
     d1A1BAll.append(d1A1BTmp)
     varx0AAll.append(x0AVar)
     varx1AAll.append(x1AVar)
+    y0All.append(y0Mean)
+    sd_y0All.append(y0Sd)
+    LMeanAll.append(LMean)
+    LVarAll.append(LVar)
+
 
 tStatsEnd=datetime.now()
 print("stats total time: ",tStatsEnd-tStatsStart)
@@ -376,4 +394,67 @@ plt.close()
 
 
 
+plt.figure()
+plt.scatter(sortedTVals,y0All,color="green",label="mc")
+plt.title("E(y0)")
+plt.ylabel("E(y0)")
+plt.xlabel("$T$")
+plt.legend(loc="best")
+# plt.ylim((0,1))
+plt.savefig(pathData+"/Ey0.png")
+plt.close()
 
+
+plt.figure()
+plt.scatter(sortedTVals,sd_y0All,color="red",label="mc")
+plt.title("var(y0)")
+plt.ylabel("var(y0)")
+plt.xlabel("$T$")
+plt.legend(loc="best")
+# plt.ylim((0,1))
+plt.savefig(pathData+"/vary0.png")
+plt.close()
+
+
+def EL(T):
+    """
+
+    :param T: temperature
+    :return: asymptotic value of E(L)
+    """
+    return 1/2*c1**(-1)*c2**(-1)*(c1+c2)/(a1+a2)*T+2*a1+2*a2
+
+def varL(T):
+    """
+
+    :param T: temperature
+    :return: asymptotic value of var(L)
+    """
+
+    return -1/4*c1**(-2)*c2**(-2)*((c1+c2)/(a1+a2))**2*T**2\
+            +c1**(-1)*c2**(-1)*(c1+c2)*T
+
+
+plt.figure()
+plt.scatter(sortedTVals,LMeanAll,color="red",label="mc")
+ELVals=[EL(T) for T in sortedTVals]
+plt.plot(sortedTVals,ELVals,color="blue",label="theory")
+plt.title("E(L)")
+plt.ylabel("E(L)")
+plt.xlabel("$T$")
+plt.legend(loc="best")
+plt.ylim((0,5.5))
+plt.savefig(pathData+"/EL.png")
+plt.close()
+
+plt.figure()
+plt.scatter(sortedTVals,LVarAll,color="magenta",label="mc")
+varLVals=[varL(T) for T in sortedTVals]
+plt.plot(sortedTVals,varLVals,color="green",label="theory")
+plt.title("var(L)")
+plt.ylabel("var(L)")
+plt.xlabel("$T$")
+plt.legend(loc="best")
+# plt.ylim((0,5.5))
+plt.savefig(pathData+"/varL.png")
+plt.close()
