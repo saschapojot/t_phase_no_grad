@@ -11,8 +11,17 @@ import pandas as pd
 
 runNum=int(sys.argv[1])
 pathData="../../version1Data/1d/run"+str(runNum)+".funcquadraticCartesian/row0"
+inCsv="../../version1Input/1d/cartesian/cartesianQuadratic.csv"
+dfStr=pd.read_csv(inCsv)
+rowNum=0
+oneRow=dfStr.iloc[rowNum,:]
 
-
+a1=float(oneRow.loc["a1"])
+a2=float(oneRow.loc["a2"])
+c1=float(oneRow.loc["c1"])
+c2=float(oneRow.loc["c2"])
+# mA=float(oneRow.loc["mA"])
+# mB=float(oneRow.loc["mB"])
 
 TVals=[]
 TFileNames=[]
@@ -260,40 +269,84 @@ for oneTFile in sortedTFiles:
 tStatsEnd=datetime.now()
 print("stats total time: ",tStatsEnd-tStatsStart)
 
+def varx0A(T):
+    """
+
+    :param T: temperature
+    :return: asymptotic value of var(x0A)
+    """
+    return 1/2*c1**(-1)*c2**(-1)*(c1+c2)+1/3*(a1+a2)**2
 
 
 plt.figure()
-plt.plot(sortedTVals,xAVarAll,color="black")
-plt.scatter(sortedTVals,xAVarAll,color="red")
+
+plt.scatter(sortedTVals,xAVarAll,color="red",label="mc")
+varx0AVals=[varx0A(T) for T in sortedTVals]
+plt.plot(sortedTVals,varx0AVals,color="black",label="theory")
 plt.title("var(x0A)")
 plt.ylabel("var(x0A)")
 plt.xlabel("$T$")
+plt.legend(loc="best")
+# plt.ylim((0,0.5))
 plt.savefig(pathData+"/varxA.png")
 plt.close()
 
+def Ex0A(T):
+    """
+
+    :param T: temperature
+    :return: asymptotic value of E(x0A)
+    """
+    return 1/4*c1**(-1)*c2**(-1)*(c1+c2)/(a1+a2)*T+a1+a2
+
+
 plt.figure()
-plt.plot(sortedTVals,xAMeanAll,color="blue")
-plt.scatter(sortedTVals,xAMeanAll,color="green")
+
+plt.scatter(sortedTVals,xAMeanAll,color="green",label="mc")
+Ex0AVals=[Ex0A(T) for T in sortedTVals]
+plt.plot(sortedTVals,Ex0AVals,color="blue",label="theory")
 plt.title("E(x0A)")
+yTicks=[0.1*n for n in range(0,11)]
+# plt.yticks(yTicks)
 plt.ylabel("E(x0A)")
 plt.xlabel("$T$")
+plt.legend(loc="best")
+# plt.ylim((0,1))
 plt.savefig(pathData+"/ExA.png")
 plt.close()
 
+def EV(T):
+    '''
 
+    :param T: temperature
+    :return: asymptotic value of E(V)
+    '''
+    return 2*T
 plt.figure()
-plt.plot(sortedTVals,UMeanAll,color="green")
-plt.scatter(sortedTVals,UMeanAll,color="darkred")
+EVVals=[EV(T) for T in sortedTVals]
+plt.plot(sortedTVals,EVVals,color="green",label="theory")
+plt.scatter(sortedTVals,UMeanAll,color="darkred",label="mc")
 plt.title("E(V)")
 plt.xlabel("$T$")
+plt.legend(loc="best")
 plt.savefig(pathData+"/EV.png")
 plt.close()
 
+
+def varV(T):
+    """
+
+    :param T: temperature
+    :return:  asymptotic value of var(V)
+    """
+    return 2*T**2
 plt.figure()
-plt.plot(sortedTVals,UVarAll,color="navy")
-plt.scatter(sortedTVals,UVarAll,color="violet")
+plt.scatter(sortedTVals,UVarAll,color="violet",label="mc")
+varVVals=[varV(T) for T in sortedTVals]
+plt.plot(sortedTVals,varVVals,color="navy",label="theory")
 plt.title("var(V)")
 plt.xlabel("$T$")
+plt.legend(loc="best")
 plt.savefig(pathData+"/varV.png")
 plt.close()
 
@@ -316,6 +369,7 @@ plt.title("var(x0A) and var(x1A)")
 plt.xlabel("$T$")
 plt.ylabel("var")
 plt.legend(loc="best")
+plt.ylim((0,0.5))
 plt.xscale("log")
 plt.savefig(pathData+"/varx0Ax1A.png")
 plt.close()
