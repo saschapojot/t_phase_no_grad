@@ -120,7 +120,9 @@ def plt_x(oneTFile):
     """
 
     :param oneTFile: corresponds to one temperature
+
     :return: plots of positions, var(x0A), E(x0A), d0A0BMean,d1A1BMean, x0AVar,x1AVar, y1Mean,y1Var, LMean,LVar
+
     """
     matchT=re.search(r"T(\d+(\.\d+)?)",oneTFile)
     TVal=float(matchT.group(1))
@@ -285,7 +287,9 @@ for oneTFile in sortedTFiles:
 
 tStatsEnd=datetime.now()
 print("stats total time: ",tStatsEnd-tStatsStart)
+
 interpolatedTVals=np.linspace(np.min(sortedTVals)*0.9,np.max(sortedTVals)*1.1,30)
+
 def varx0A(T):
     """
 
@@ -449,18 +453,24 @@ def Ey1(T):
     :param T: temperature
     :return: asymptotic value of E(y1)
     """
+
     return 1/4*c1**(-1)*(a1+a2)**(-1)*T+a1
+
 
 
 plt.figure()
 plt.scatter(sortedTVals,y1MeanAll,color="red",label="mc")
 Ey1Vals=[Ey1(T) for T in interpolatedTVals]
+
 plt.plot(interpolatedTVals,Ey1Vals,color="blue",label="theory")
+
 plt.title("E(y1)")
 plt.ylabel("E(y1)")
 plt.xlabel("$T$")
 plt.legend(loc="best")
-plt.ylim((0,1.5))
+
+plt.ylim((0,1.2))
+
 plt.savefig(pathData+"/Ey1.png")
 plt.close()
 
@@ -471,6 +481,7 @@ def vary1(T):
     :param T: temperature
     :return: asymptotic value of var(y1)
     """
+
 
     val=1/4*c1**(-1)*(c1+c2)**(-1)*(2*c1+c2)*T\
         +1/4*c1**(-1)*c2*(c1+c2)**(-1)*T\
@@ -484,11 +495,14 @@ plt.figure()
 plt.scatter(sortedTVals,y1VarAll,color="magenta",label="mc")
 vary1Vals=[vary1(T) for T in interpolatedTVals]
 plt.plot(interpolatedTVals,vary1Vals,color="green",label="theory")
+
 plt.title("var(y1)")
 plt.ylabel("var(y1)")
 plt.xlabel("$T$")
 plt.legend(loc="best")
+
 # plt.ylim((0,1.5))
 plt.savefig(pathData+"/vary1.png")
 plt.close()
+
 
