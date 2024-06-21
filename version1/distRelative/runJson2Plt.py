@@ -189,6 +189,13 @@ def plt_dist(oneTFile):
     d1A1BVar=np.var(d1A1BVec,ddof=1)
     d1B0AVar=np.var(d1B0AVec,ddof=1)
 
+    d0A0BSd=np.sqrt(d0A0BVar)
+    d0B1ASd=np.sqrt(d0B1AVar)
+    d1A1BSd=np.sqrt(d1A1BVar)
+    d1B0ASd=np.sqrt(d1B0AVar)
+
+
+
 
 
 
@@ -209,10 +216,12 @@ def plt_dist(oneTFile):
     #
     dist=[d0A0BMean,d0B1AMean,d1A1BMean,d1B0AMean]
     varsAll=[d0A0BVar,d0B1AVar,d1A1BVar,d1B0AVar]
+    sdAll=[d0A0BSd,d0B1ASd,d1A1BSd,d1B0ASd]
     fptrTxt=open(smrDistFileName,"w")
     fptrTxt.write("T="+str(TVal)+"\n")
     fptrTxt.write("distances: "+str(dist)+"\n")
-    fptrTxt.write("vars: "+str(varsAll)+"\n")
+    fptrTxt.write("var: "+str(varsAll)+"\n")
+    fptrTxt.write("sd: " +str(sdAll)+"\n")
     fptrTxt.close()
 
     rowNames=["0A0B","0B1A","1A1B","1B0A"]
@@ -398,7 +407,7 @@ plt.title("E(L)")
 plt.ylabel("E(L)")
 plt.xlabel("$T$")
 plt.legend(loc="best")
-plt.ylim((0,5.5))
+# plt.ylim((0,5.5))
 plt.savefig(pathData+"/EL.png")
 plt.close()
 
@@ -437,7 +446,7 @@ plt.ylabel("E(y1)")
 plt.xlabel("$T$")
 plt.legend(loc="best")
 
-plt.ylim((0,1.2))
+# plt.ylim((0,1.2))
 
 plt.savefig(pathData+"/Ey1.png")
 plt.close()

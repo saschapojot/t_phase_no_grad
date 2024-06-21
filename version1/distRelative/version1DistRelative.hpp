@@ -155,14 +155,12 @@ public:
 //        if (stepSize>0.005){
 //            stepSize=0.005;
 //        }
-double stepForT1=0.1;
-        this->h= stepForT1*T;//stepSize;
+        double stepForT1 = 0.1;
+        this->h = stepForT1 * T>0.2? 0.2:stepForT1 * T;//stepSize;
 
 
-        std::cout<<"h="<<h<<std::endl;
-        this->stddev =h;
-
-
+        std::cout << "h=" << h << std::endl;
+        this->stddev = h;
 
 
     }
@@ -210,10 +208,8 @@ public:
         std::mt19937 gen(rd()); // Mersenne Twister engine
         std::normal_distribution<> d(LCurr, sigma); // Normal distribution with mean rCurr and standard deviation sigma
 
-        double LNext;
-        do {
-            LNext = d(gen);
-        } while (LNext <= 0); // Ensure the generated value is positive
+        double LNext = d(gen);
+
 
         return LNext;
     }
@@ -222,12 +218,45 @@ public:
         std::random_device rd;  // Random number generator
         std::mt19937 gen(rd()); // Mersenne Twister engine
         std::normal_distribution<> d(x, sigma); // Normal distribution with mean rCurr and standard deviation sigma
-        double xNext;
-        do {
-            xNext = d(gen);
-        } while (xNext < -L or xNext>L); // Ensure the generated value is in [-L,L]
+        double xNext = d(gen);
+
 
         return xNext;
+
+    }
+
+    static double generate_LNext(const double& LCurr, const double& sigma){
+        double upperBound=LCurr+sigma;
+
+        double LMinusEps=LCurr-sigma;
+
+//        double lowerBound=(LMinusEps>0)? LMinusEps:0;
+
+        double lowerBound=LMinusEps;
+        std::random_device rd;  // Obtain a random number from hardware
+        std::mt19937 gen(rd()); // Seed the generator
+
+        std::uniform_real_distribution<> distr(lowerBound, upperBound);
+
+        return distr(gen);
+
+    }
+
+    static double generate_distNext(const double& x, const double& sigma,const double &L){
+        double xMinusEps=x-sigma;
+
+        double xPlusEps=x+sigma;
+
+//        double lowerBound=(xMinusEps>-L)?xMinusEps:-L;
+//        double upperBound=(xPlusEps<L)?xPlusEps:L;
+        double lowerBound=xMinusEps;
+        double upperBound=xPlusEps;
+        std::random_device rd;  // Obtain a random number from hardware
+        std::mt19937 gen(rd()); // Seed the generator
+
+        std::uniform_real_distribution<> distr(lowerBound, upperBound);
+
+        return distr(gen);
 
     }
 

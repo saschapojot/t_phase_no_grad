@@ -118,14 +118,16 @@ void version1DistRelative::proposal(const double &LCurr, const double& y0Curr,co
 
     //next L
     LNext=generate_nearby_positive_value(LCurr,stddev);
+//    LNext = generate_LNext(LCurr, stddev);
 
    y0Next= generate_nearby_mL_L(y0Curr,stddev,LNext);
+//    y0Next = generate_distNext(y0Curr, stddev, LNext);
 
    z0Next= generate_nearby_mL_L(z0Curr,stddev,LNext);
+//    z0Next = generate_distNext(z0Curr, stddev, LNext);
 
    y1Next= generate_nearby_mL_L(y1Curr,stddev,LNext);
-
-
+//    y1Next = generate_distNext(y1Curr, stddev, LNext);
 
 
 }
