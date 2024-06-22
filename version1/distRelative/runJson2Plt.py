@@ -386,7 +386,7 @@ def EL(T):
     :param T: temperature
     :return: asymptotic value of E(L)
     """
-    return 1/2*c1**(-1)*c2**(-1)*(c1+c2)/(a1+a2)*T+2*a1+2*a2
+    return 2*a1+2*a2
 
 def varL(T):
     """
@@ -395,8 +395,7 @@ def varL(T):
     :return: asymptotic value of var(L)
     """
 
-    return -1/4*c1**(-2)*c2**(-2)*((c1+c2)/(a1+a2))**2*T**2\
-            +c1**(-1)*c2**(-1)*(c1+c2)*T
+    return  c1**(-1)*c2**(-1)*(c1+c2)*T
 
 
 plt.figure()
@@ -431,7 +430,7 @@ def Ey1(T):
     :return: asymptotic value of E(y1)
     """
 
-    return 1/4*c1**(-1)*(a1+a2)**(-1)*T+a1
+    return a1
 
 
 
@@ -462,7 +461,7 @@ def vary1(T):
 
     val=1/4*c1**(-1)*(c1+c2)**(-1)*(2*c1+c2)*T\
         +1/4*c1**(-1)*c2*(c1+c2)**(-1)*T\
-        -1/16*c1**(-2)*(a1+a2)**(-2)*T**2
+
 
     return val
 
