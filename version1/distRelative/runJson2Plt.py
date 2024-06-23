@@ -289,8 +289,10 @@ def plt_dist(oneTFile):
     y0y1Mean=np.mean(y0Vec*y1Vec)
     z0z1Mean=np.mean(z0Vec*z1Vec)
     y0LMean=np.mean(y0Vec*LVec)
+    y1LMean=np.mean(y1Vec*LVec)
 
-    prodData={"y0z0Mean":y0z0Mean,"y0y1Mean":y0y1Mean,"z0z1Mean":z0z1Mean,"y0LMean":y0LMean}
+    prodData={"y0z0Mean":y0z0Mean,"y0y1Mean":y0y1Mean,"z0z1Mean":z0z1Mean,"y0LMean":y0LMean
+              ,"y1LMean":y1LMean}
     prodFile=oneTFile+"/prod.json"
     with open(prodFile, 'w') as json_file:
         json.dump(prodData, json_file, indent=4)
@@ -649,6 +651,7 @@ y0z0MeanValsAll=[]
 y0y1MeanValsAll=[]
 z0z1MeanValsAll=[]
 y0LMeanValsAll=[]
+y1LMeanValsAll=[]
 for k in range(0,len(sortedTFiles)):
     oneTFile=sortedTFiles[k]
     prodFile=oneTFile+"/prod.json"
@@ -659,16 +662,20 @@ for k in range(0,len(sortedTFiles)):
     y0y1Tmp=prodData["y0y1Mean"]
     z0z1Tmp=prodData["z0z1Mean"]
     y0LTmp=prodData["y0LMean"]
+    y1LTmp=prodData["y1LMean"]
 
     y0z0MeanValsAll.append(y0z0Tmp)
     y0y1MeanValsAll.append(y0y1Tmp)
     z0z1MeanValsAll.append(z0z1Tmp)
     y0LMeanValsAll.append(y0LTmp)
+    y1LMeanValsAll.append(y1LTmp)
 
 y0z0MeanValsAll=np.array(y0z0MeanValsAll)
 y0y1MeanValsAll=np.array(y0y1MeanValsAll)
 z0z1MeanValsAll=np.array(z0z1MeanValsAll)
 y0LMeanValsAll=np.array(y0LMeanValsAll)
+y1LMeanValsAll=np.array(y1LMeanValsAll)
+
 
 y0MeanValsAll=combined_d0A0BMeanValsAll
 z0MeanValsAll=combined_d0B1AMeanValsAll
@@ -727,4 +734,17 @@ plt.xlabel("$T$")
 plt.legend(loc="best")
 # plt.ylim((0,5.5))
 plt.savefig(pathData+"/covy0L.png")
+plt.close()
+
+
+#cov(y1,L)
+cov_y1L=y1LMeanValsAll-y1MeanValsAll*LMeanValsAll
+plt.figure()
+plt.scatter(TToPlt,cov_y1L[TInds],color="red")
+plt.title("cov(y1,L)")
+plt.ylabel("cov")
+plt.xlabel("$T$")
+plt.legend(loc="best")
+# plt.ylim((0,5.5))
+plt.savefig(pathData+"/covy1L.png")
 plt.close()
