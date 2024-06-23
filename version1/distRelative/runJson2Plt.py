@@ -149,10 +149,10 @@ def plt_dist(oneTFile):
 
 
 
-    d0A0BVec=[]
-    d0B1AVec=[]
-    d1A1BVec=[]
-    d1B0AVec=[]
+    d0A0BVec=[]#y0
+    d0B1AVec=[]#z0
+    d1A1BVec=[]#y1
+    d1B0AVec=[]#z1
 
     x0BVec=[]
     x1AVec=[]
@@ -176,6 +176,11 @@ def plt_dist(oneTFile):
         x1AVec.append(x0AInit+y0Tmp+z0Tmp)
         x1BVec.append(x0AInit+y0Tmp+z0Tmp+y1Tmp)
         x0AVec.append(x0AInit+LTmp)
+
+    y0Vec=np.array(d0A0BVec)
+    z0Vec=np.array(d0B1AVec)
+    y1Vec=np.array(d1A1BVec)
+    z1Vec=np.array(d1B0AVec)
 
 
     # #summary of distance between neighboring points
@@ -279,6 +284,16 @@ def plt_dist(oneTFile):
     #
     # plt.close()
 
+    #cov functions
+    y0z0Mean=np.mean(y0Vec*z0Vec)
+    y0y1Mean=np.mean(y0Vec*y1Vec)
+    z0z1Mean=np.mean(z0Vec*z1Vec)
+    y0LMean=np.mean(y0Vec*LVec)
+
+    prodData={"y0z0Mean":y0z0Mean,"y0y1Mean":y0y1Mean,"z0z1Mean":z0z1Mean,"y0LMean":y0LMean}
+    prodFile=oneTFile+"/prod.json"
+    with open(prodFile, 'w') as json_file:
+        json.dump(prodData, json_file, indent=4)
 
 
 
@@ -290,7 +305,11 @@ def plt_dist(oneTFile):
 
 
 
-    return [y1Mean,y1Var,LMean,LVar,d0A0BMean,d1A1BMean]
+
+
+
+
+    return [y1Mean,y1Var,LMean,LVar,d0A0BMean,d0B1AMean,d1A1BMean,d1B0AMean,d0A0BVar,d0B1AVar,d1A1BVar,d1B0AVar]
 
 
 
@@ -302,25 +321,62 @@ y1VarValsAll=[]
 LMeanValsAll=[]
 LVarValsAll=[]
 d0A0BMeanValsAll=[]
+d0B1AMeanValsAll=[]
 d1A1BMeanValsAll=[]
+d1B0AMeanValsAll=[]
+
+d0A0BVarValsAll=[]
+d0B1AVarValsAll=[]
+d1A1BVarValsAll=[]
+d1B0AVarValsAll=[]
+
 tStatsStart=datetime.now()
-for oneTFile in sortedTFiles:
+# TToPlt=[]
+for k in range(0,len(sortedTFiles)):
+    oneTFile=sortedTFiles[k]
+    # if sortedTVals[k]>60:
+    #     continue
+    # TToPlt.append(sortedTVals[k])
     UMeanTmp,UVarTmp=pltU(oneTFile)
     UMeanValsAll.append(UMeanTmp)
     UVarValsAll.append(UVarTmp)
-    y1Mean,y1Var,LMean,LVar,d0A0BMean,d1A1BMean=plt_dist(oneTFile)
+    y1Mean,y1Var,LMean,LVar,d0A0BMean,d0B1AMean,d1A1BMean,d1B0AMean,d0A0BVar,d0B1AVar,d1A1BVar,d1B0AVar=plt_dist(oneTFile)
     y1MeanValsAll.append(y1Mean)
     y1VarValsAll.append(y1Var)
     LMeanValsAll.append(LMean)
     LVarValsAll.append(LVar)
     d0A0BMeanValsAll.append(d0A0BMean)
+    d0B1AMeanValsAll.append(d0B1AMean)
     d1A1BMeanValsAll.append(d1A1BMean)
+    d1B0AMeanValsAll.append(d1B0AMean)
+
+    d0A0BVarValsAll.append(d0A0BVar)
+    d0B1AVarValsAll.append(d0B1AVar)
+    d1A1BVarValsAll.append(d1A1BVar)
+    d1B0AVarValsAll.append(d1B0AVar)
 
 
 tStatsEnd=datetime.now()
 print("stats total time: ",tStatsEnd-tStatsStart)
 
-interpolatedTVals=np.linspace(np.min(sortedTVals)*0.9,np.max(sortedTVals)*1.1,30)
+UMeanValsAll=np.array(UMeanValsAll)
+UVarValsAll=np.array(UVarValsAll)
+y1MeanValsAll=np.array(y1MeanValsAll)
+y1VarValsAll=np.array(y1VarValsAll)
+LMeanValsAll=np.array(LMeanValsAll)
+LVarValsAll=np.array(LVarValsAll)
+d0A0BMeanValsAll=np.array(d0A0BMeanValsAll)
+d0B1AMeanValsAll=np.array(d0B1AMeanValsAll)
+d1A1BMeanValsAll=np.array(d1A1BMeanValsAll)
+d1B0AMeanValsAll=np.array(d1B0AMeanValsAll)
+
+
+
+
+sortedTVals=np.array(sortedTVals)
+TInds=np.where(sortedTVals<50)
+TToPlt=sortedTVals[TInds]
+interpolatedTVals=np.linspace(np.min(TToPlt)*0.9,np.max(TToPlt)*1.1,30)
 
 
 def EV(T):
@@ -333,7 +389,7 @@ def EV(T):
 plt.figure()
 EVVals=[EV(T) for T in interpolatedTVals]
 plt.plot(interpolatedTVals,EVVals,color="green",label="theory")
-plt.scatter(sortedTVals,UMeanValsAll,color="darkred",label="mc")
+plt.scatter(TToPlt,UMeanValsAll[TInds],color="darkred",label="mc")
 plt.title("E(V)")
 plt.xlabel("$T$")
 plt.legend(loc="best")
@@ -349,7 +405,7 @@ def varV(T):
     """
     return 2*T**2
 plt.figure()
-plt.scatter(sortedTVals,UVarValsAll,color="violet",label="mc")
+plt.scatter(TToPlt,UVarValsAll[TInds],color="violet",label="mc")
 varVVals=[varV(T) for T in interpolatedTVals]
 plt.plot(interpolatedTVals,varVVals,color="navy",label="theory")
 plt.title("var(V)")
@@ -359,8 +415,8 @@ plt.savefig(pathData+"/varV.png")
 plt.close()
 
 plt.figure()
-plt.scatter(sortedTVals,d0A0BMeanValsAll,color="deeppink",label="d0A0B")
-plt.scatter(sortedTVals,d1A1BMeanValsAll,color="aqua",label="d1A1B",s=1)
+plt.scatter(TToPlt,d0A0BMeanValsAll[TInds],color="deeppink",label="d0A0B")
+plt.scatter(TToPlt,d1A1BMeanValsAll[TInds],color="aqua",label="d1A1B",s=1)
 plt.title("Intracell distance")
 plt.xlabel("$T$")
 plt.ylabel("distance")
@@ -372,12 +428,52 @@ plt.close()
 
 
 
+#compare d0A0B and d1A1B
+#d0A0B
+d0A0BVarValsAll=np.array(d0A0BVarValsAll)
+d0A0BSdValsAll=np.sqrt(d0A0BVarValsAll)
+
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 10))
+ax1.errorbar(TToPlt, d0A0BMeanValsAll[TInds], yerr=d0A0BSdValsAll[TInds], fmt='o',color="black", ecolor='r', capsize=5, label='d0A0B')
+ax1.set_xlabel('$T$')
+ax1.set_ylabel('E(d0A0B)')
+ax1.set_title('Intracell distance between 0A and 0B')
+ax1.legend()
 
 
 
+d1A1BVarValsAll=np.array(d1A1BVarValsAll)
+d1A1BSdValsAll=np.sqrt(d1A1BVarValsAll)
+ax2.errorbar(TToPlt, d1A1BMeanValsAll[TInds], yerr=d1A1BSdValsAll[TInds], fmt='o',color="black", ecolor='b', capsize=5, label='d1A1B')
+ax2.set_xlabel('$T$')
+ax2.set_ylabel('E(d1A1B)')
+ax2.set_title('Intracell distance between 1A and 1B')
+ax2.legend()
+plt.tight_layout()
+plt.savefig(pathData+"/d0A0Bd1A1B.pdf")
+plt.close()
 
-
-
+#compare d0B1A and d1B0A
+#d0B1A
+d0B1AVarValsAll=np.array(d0B1AVarValsAll)
+d0B1ASdValsAll=np.sqrt(d0B1AVarValsAll)
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 10))
+ax1.errorbar(TToPlt, d0B1AMeanValsAll[TInds], yerr=d0B1ASdValsAll[TInds], fmt='o',color="black", ecolor='r', capsize=5, label='d0B1A')
+ax1.set_xlabel('$T$')
+ax1.set_ylabel('E(0B1A)')
+ax1.set_title('Intracell distance between 0B and 1A')
+ax1.legend()
+#d1B0A
+d1B0AVarValsAll=np.array(d1B0AVarValsAll)
+d1B0ASdValsAll=np.sqrt(d1B0AVarValsAll)
+ax2.errorbar(TToPlt, d1B0AMeanValsAll[TInds], yerr=d1B0ASdValsAll[TInds], fmt='o',color="black", ecolor='b', capsize=5, label='d1B0A')
+ax2.set_xlabel('$T$')
+ax2.set_ylabel('E(1B0A)')
+ax2.set_title('Intracell distance between 1B and 0A')
+ax2.legend()
+plt.tight_layout()
+plt.savefig(pathData+"/d0B1Ad1B0A.pdf")
+plt.close()
 
 
 def EL(T):
@@ -399,7 +495,7 @@ def varL(T):
 
 
 plt.figure()
-plt.scatter(sortedTVals,LMeanValsAll,color="red",label="mc")
+plt.scatter(TToPlt,LMeanValsAll[TInds],color="red",label="mc")
 ELVals=[EL(T) for T in interpolatedTVals]
 plt.plot(interpolatedTVals,ELVals,color="blue",label="theory")
 plt.title("E(L)")
@@ -411,7 +507,7 @@ plt.savefig(pathData+"/EL.png")
 plt.close()
 
 plt.figure()
-plt.scatter(sortedTVals,LVarValsAll,color="magenta",label="mc")
+plt.scatter(TToPlt,LVarValsAll[TInds],color="magenta",label="mc")
 varLVals=[varL(T) for T in interpolatedTVals]
 plt.plot(interpolatedTVals,varLVals,color="green",label="theory")
 plt.title("var(L)")
@@ -435,7 +531,7 @@ def Ey1(T):
 
 
 plt.figure()
-plt.scatter(sortedTVals,y1MeanValsAll,color="red",label="mc")
+plt.scatter(TToPlt,y1MeanValsAll[TInds],color="red",label="mc")
 Ey1Vals=[Ey1(T) for T in interpolatedTVals]
 
 plt.plot(interpolatedTVals,Ey1Vals,color="blue",label="theory")
@@ -468,7 +564,7 @@ def vary1(T):
 
 
 plt.figure()
-plt.scatter(sortedTVals,y1VarValsAll,color="magenta",label="mc")
+plt.scatter(TToPlt,y1VarValsAll[TInds],color="magenta",label="mc")
 vary1Vals=[vary1(T) for T in interpolatedTVals]
 plt.plot(interpolatedTVals,vary1Vals,color="green",label="theory")
 
@@ -481,4 +577,154 @@ plt.legend(loc="best")
 plt.savefig(pathData+"/vary1.png")
 plt.close()
 
+#combine all distVar.csv files
 
+combined_d0A0BMeanValsAll=[]
+combined_d0B1AMeanValsAll=[]
+combined_d1A1BMeanValsAll=[]
+combined_d1B0AMeanValsAll=[]
+
+combined_d0A0BVarValsAll=[]
+combined_d0B1AVarValsAll=[]
+combined_d1A1BVarValsAll=[]
+combined_d1B0AVarValsAll=[]
+
+combinedTValsAll=[]
+
+for k in range(0,len(sortedTFiles)):
+    oneTFile=sortedTFiles[k]
+    distFile=oneTFile+"/distVar.csv"
+    dfDist=pd.read_csv(distFile,header=0)
+    combinedTValsAll.append(sortedTVals[k])
+
+
+    distTmp=dfDist.loc[:,"dist"]
+    combined_d0A0BMeanValsAll.append(distTmp[0])
+    combined_d0B1AMeanValsAll.append(distTmp[1])
+    combined_d1A1BMeanValsAll.append(distTmp[2])
+    combined_d1B0AMeanValsAll.append(distTmp[3])
+
+    varTmp=dfDist.loc[:,"var"]
+    combined_d0A0BVarValsAll.append(varTmp[0])
+    combined_d0B1AVarValsAll.append(varTmp[1])
+    combined_d1A1BVarValsAll.append(varTmp[2])
+    combined_d1B0AVarValsAll.append(varTmp[3])
+
+
+combined_d0A0BMeanValsAll=np.array(combined_d0A0BMeanValsAll)
+combined_d0B1AMeanValsAll=np.array(combined_d0B1AMeanValsAll)
+combined_d1A1BMeanValsAll=np.array(combined_d1A1BMeanValsAll)
+combined_d1B0AMeanValsAll=np.array(combined_d1B0AMeanValsAll)
+
+
+combined_d0A0BVarValsAll=np.array(combined_d0A0BVarValsAll)
+combined_d0B1AVarValsAll=np.array(combined_d0B1AVarValsAll)
+combined_d1A1BVarValsAll=np.array(combined_d1A1BVarValsAll)
+combined_d1B0AVarValsAll=np.array(combined_d1B0AVarValsAll)
+
+combined_d0A0BSdValsAll=np.sqrt(combined_d0A0BVarValsAll)
+combined_d0B1ASdValsAll=np.sqrt(combined_d0B1AVarValsAll)
+combined_d1A1BSdValsAll=np.sqrt(combined_d1A1BVarValsAll)
+combined_d1B0ASdValsAll=np.sqrt(combined_d1B0AVarValsAll)
+
+df0A0BCombinedOut=pd.DataFrame({"T":combinedTValsAll,"0A0Bdist":combined_d0A0BMeanValsAll,"sd":combined_d0A0BSdValsAll,"var":combined_d0A0BVarValsAll})
+df0A0BCombinedOut.to_csv(pathData+"/0A0B.csv",index=False)
+
+
+df0B1ACombinedOut=pd.DataFrame({"T":combinedTValsAll,"0B1Adist":combined_d0B1AMeanValsAll,"sd":combined_d0B1ASdValsAll,"var":combined_d0B1AVarValsAll})
+df0B1ACombinedOut.to_csv(pathData+"/0B1A.csv",index=False)
+
+df1A1BCombinedOut=pd.DataFrame({"T":combinedTValsAll,"1A1Bdist":combined_d1A1BMeanValsAll,"sd":combined_d1A1BSdValsAll,"var":combined_d1A1BVarValsAll})
+df1A1BCombinedOut.to_csv(pathData+"/1A1B.csv",index=False)
+
+
+df1B0ACombinedOut=pd.DataFrame({"T":combinedTValsAll,"1B0Adist":combined_d1B0AMeanValsAll,"sd":combined_d1B0ASdValsAll,"var":combined_d1B0AVarValsAll})
+df1B0ACombinedOut.to_csv(pathData+"/1B0A.csv",index=False)
+
+
+
+#correlation functions
+
+y0z0MeanValsAll=[]
+y0y1MeanValsAll=[]
+z0z1MeanValsAll=[]
+y0LMeanValsAll=[]
+for k in range(0,len(sortedTFiles)):
+    oneTFile=sortedTFiles[k]
+    prodFile=oneTFile+"/prod.json"
+    with open(prodFile,"r") as fptr:
+        prodData=json.load(fptr)
+
+    y0z0Tmp=prodData["y0z0Mean"]
+    y0y1Tmp=prodData["y0y1Mean"]
+    z0z1Tmp=prodData["z0z1Mean"]
+    y0LTmp=prodData["y0LMean"]
+
+    y0z0MeanValsAll.append(y0z0Tmp)
+    y0y1MeanValsAll.append(y0y1Tmp)
+    z0z1MeanValsAll.append(z0z1Tmp)
+    y0LMeanValsAll.append(y0LTmp)
+
+y0z0MeanValsAll=np.array(y0z0MeanValsAll)
+y0y1MeanValsAll=np.array(y0y1MeanValsAll)
+z0z1MeanValsAll=np.array(z0z1MeanValsAll)
+y0LMeanValsAll=np.array(y0LMeanValsAll)
+
+y0MeanValsAll=combined_d0A0BMeanValsAll
+z0MeanValsAll=combined_d0B1AMeanValsAll
+y1MeanValsAll=combined_d1A1BMeanValsAll
+z1MeanValsAll=combined_d1B0AMeanValsAll
+
+
+#cov(y0,z0)
+cov_y0z0=y0z0MeanValsAll-y0MeanValsAll*z0MeanValsAll
+
+plt.figure()
+plt.scatter(TToPlt,cov_y0z0[TInds],color="red")
+plt.title("cov(y0,z0)")
+plt.ylabel("cov")
+plt.xlabel("$T$")
+plt.legend(loc="best")
+# plt.ylim((0,5.5))
+plt.savefig(pathData+"/covy0z0.png")
+plt.close()
+
+
+#cov(y0,y1)
+cov_y0y1=y0y1MeanValsAll-y0MeanValsAll*y1MeanValsAll
+plt.figure()
+plt.scatter(TToPlt,cov_y0y1[TInds],color="red")
+plt.title("cov(y0,y1)")
+plt.ylabel("cov")
+plt.xlabel("$T$")
+plt.legend(loc="best")
+# plt.ylim((0,5.5))
+plt.savefig(pathData+"/covy0y1.png")
+plt.close()
+
+
+#cov(z0,z1)
+cov_z0z1=z0z1MeanValsAll-z0MeanValsAll*z1MeanValsAll
+plt.figure()
+plt.scatter(TToPlt,cov_z0z1[TInds],color="red")
+plt.title("cov(z0,z1)")
+plt.ylabel("cov")
+plt.xlabel("$T$")
+plt.legend(loc="best")
+# plt.ylim((0,5.5))
+plt.savefig(pathData+"/covz0z1.png")
+plt.close()
+
+
+#cov(y0,L)
+LMeanValsAll=np.array(LMeanValsAll)
+cov_y0L=y0LMeanValsAll-y0MeanValsAll*LMeanValsAll
+plt.figure()
+plt.scatter(TToPlt,cov_y0L[TInds],color="red")
+plt.title("cov(y0,L)")
+plt.ylabel("cov")
+plt.xlabel("$T$")
+plt.legend(loc="best")
+# plt.ylim((0,5.5))
+plt.savefig(pathData+"/covy0L.png")
+plt.close()
