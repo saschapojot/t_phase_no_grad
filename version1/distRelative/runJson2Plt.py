@@ -376,7 +376,7 @@ d1B0AMeanValsAll=np.array(d1B0AMeanValsAll)
 
 
 sortedTVals=np.array(sortedTVals)
-TInds=np.where(sortedTVals<50)
+TInds=np.where(sortedTVals<14)
 TToPlt=sortedTVals[TInds]
 interpolatedTVals=np.linspace(np.min(TToPlt)*0.9,np.max(TToPlt)*1.1,30)
 
