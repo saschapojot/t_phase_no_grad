@@ -687,7 +687,9 @@ z1MeanValsAll=combined_d1B0AMeanValsAll
 cov_y0z0=y0z0MeanValsAll-y0MeanValsAll*z0MeanValsAll
 
 plt.figure()
-plt.scatter(TToPlt,cov_y0z0[TInds],color="red")
+plt.plot(interpolatedTVals,[0]*len(interpolatedTVals),color="green",label="theory")
+
+plt.scatter(TToPlt,cov_y0z0[TInds],color="red",label="mc")
 plt.title("cov(y0,z0)")
 plt.ylabel("cov")
 plt.xlabel("$T$")
@@ -700,7 +702,9 @@ plt.close()
 #cov(y0,y1)
 cov_y0y1=y0y1MeanValsAll-y0MeanValsAll*y1MeanValsAll
 plt.figure()
-plt.scatter(TToPlt,cov_y0y1[TInds],color="red")
+plt.plot(interpolatedTVals,[0]*len(interpolatedTVals),color="green",label="theory")
+
+plt.scatter(TToPlt,cov_y0y1[TInds],color="red",label="mc")
 plt.title("cov(y0,y1)")
 plt.ylabel("cov")
 plt.xlabel("$T$")
@@ -715,8 +719,10 @@ def covz0z1(T):
 #cov(z0,z1)
 cov_z0z1=z0z1MeanValsAll-z0MeanValsAll*z1MeanValsAll
 plt.figure()
+
 plt.scatter(TToPlt,cov_z0z1[TInds],color="red")
 # covz0z1ValsAll=[covz0z1(T) for T in ]
+
 plt.title("cov(z0,z1)")
 plt.ylabel("cov")
 plt.xlabel("$T$")
@@ -730,7 +736,8 @@ plt.close()
 LMeanValsAll=np.array(LMeanValsAll)
 cov_y0L=y0LMeanValsAll-y0MeanValsAll*LMeanValsAll
 plt.figure()
-plt.scatter(TToPlt,cov_y0L[TInds],color="red")
+plt.plot(interpolatedTVals,vary1Vals,color="green",label="theory")
+plt.scatter(TToPlt,cov_y0L[TInds],color="red",label="mc")
 plt.title("cov(y0,L)")
 plt.ylabel("cov")
 plt.xlabel("$T$")
@@ -743,7 +750,9 @@ plt.close()
 #cov(y1,L)
 cov_y1L=y1LMeanValsAll-y1MeanValsAll*LMeanValsAll
 plt.figure()
-plt.scatter(TToPlt,cov_y1L[TInds],color="red")
+plt.plot(interpolatedTVals,vary1Vals,color="blue",label="theory")
+
+plt.scatter(TToPlt,cov_y1L[TInds],color="magenta",label="mc")
 plt.title("cov(y1,L)")
 plt.ylabel("cov")
 plt.xlabel("$T$")
