@@ -709,11 +709,14 @@ plt.legend(loc="best")
 plt.savefig(pathData+"/covy0y1.png")
 plt.close()
 
+def covz0z1(T):
+    return -2**(-1)*c1**(-1)*c2**(-1)*(c1-c2)**2*(c1+c2)**(-1)*T
 
 #cov(z0,z1)
 cov_z0z1=z0z1MeanValsAll-z0MeanValsAll*z1MeanValsAll
 plt.figure()
 plt.scatter(TToPlt,cov_z0z1[TInds],color="red")
+# covz0z1ValsAll=[covz0z1(T) for T in ]
 plt.title("cov(z0,z1)")
 plt.ylabel("cov")
 plt.xlabel("$T$")
