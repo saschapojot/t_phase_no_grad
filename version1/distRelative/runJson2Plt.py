@@ -10,7 +10,7 @@ import pandas as pd
 #This script loads json data and plot for a run
 
 runNum=int(sys.argv[1])
-pathData="../../version1Data/1d/run"+str(runNum)+".funcquadraticDistRelative/row0"
+pathData="../../version1Data/1d/run"+str(runNum)+".funcquadraticDistRelative/row0/jsonOutAll/"
 inCsv="../../version1Input/1d/distRelative/distRelative.csv"
 dfStr=pd.read_csv(inCsv)
 rowNum=0

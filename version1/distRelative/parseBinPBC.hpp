@@ -18,6 +18,8 @@ public:
         std::vector<std::string> sortedTDirs = scanTDirs(TRoot);
         this->TDir = TRoot + "/" + sortedTDirs[TInd] + "/";
         std::cout << "selected TDir=" << TDir << std::endl;
+        this->TVal= regexT(sortedTDirs[TInd]);
+//        std::cout<<"TVal="<<TVal<<std::endl;
         try {
             this->UInOneFile = std::shared_ptr<double[]>(new double[version1DistRelative::loopMax],
                                                          std::default_delete<double[]>());
@@ -96,6 +98,17 @@ public:
 
     void parseSummary();
 
+    static double regexT(const std::string & TStr){
+        std::string TPattern = "T([+-]?(\\d+(\\.\\d*)?|\\.\\d+)([eE][+-]?\\d+)?)";
+        std::smatch matchT;
+        if(std::regex_search(TStr,matchT,std::regex(TPattern))){
+            double TValTmp = std::stod(matchT.str(1));
+            return TValTmp;
+        }
+        return 0;
+
+    }
+
     ///
     /// @param filename file name
     /// @param values values in file
@@ -137,6 +150,7 @@ public:
     std::string TDir;
     std::string TRoot;
     int rowNum;
+    double TVal;
     unsigned long long cellNum;
     std::string UPath;
     std::string LPath;

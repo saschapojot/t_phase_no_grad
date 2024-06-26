@@ -333,7 +333,7 @@ void reader::data2json() {
     const std::chrono::duration<double> elapsed_secondsAll{tReadUEnd - tReadUStart};
     std::cout << "USize=" << USize << std::endl;
     std::cout << "read U time: " << elapsed_secondsAll.count() / 3600.0 << " h" << std::endl;
-    std::string jsonPath = this->TDir + "/jsonData/";
+    std::string jsonPath = this->TRoot+"/jsonOutAll/T"+std::to_string(this->TVal)+ "/jsonData/";
 
     //write U
     std::string UJsonPath = jsonPath + "/jsonU/";
