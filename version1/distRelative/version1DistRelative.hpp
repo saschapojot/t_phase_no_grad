@@ -1,4 +1,4 @@
-//
+    //
 // Created by polya on 5/23/24.
 //
 
@@ -40,7 +40,6 @@
 
 namespace fs = boost::filesystem;
 const auto PI=M_PI;
-//Using angular coordinates, this subroutine computes the mc evolution for a 1d system, 2-atom, quadratic potential +PBC
 
 class potentialFunction {
     //base class for potential function
@@ -203,7 +202,8 @@ public:
     /// @param LCurr
     /// @param sigma
     /// @return
-    static double generate_nearby_positive_value(const double& LCurr, const double& sigma) {
+    static double generate_nearby_positive_value(const double& LCurr,
+                                                 const double& sigma) {
         std::random_device rd;  // Random number generator
         std::mt19937 gen(rd()); // Mersenne Twister engine
         std::normal_distribution<> d(LCurr, sigma); // Normal distribution with mean rCurr and standard deviation sigma

@@ -143,8 +143,10 @@ void version1DistRelative::proposal(const double &LCurr, const double& y0Curr,co
 /// @param z0Next
 /// @param y1Next
 /// @return
-double version1DistRelative::acceptanceRatio(const double &LCurr,const double &y0Curr, const double &z0Curr, const double& y1Curr,
-                                             const double &LNext, const double& y0Next, const double & z0Next, const double & y1Next){
+double version1DistRelative::acceptanceRatio(const double &LCurr,const double &y0Curr,
+                                             const double &z0Curr, const double& y1Curr,
+                                             const double &LNext, const double& y0Next,
+                                             const double & z0Next, const double & y1Next){
 
 
     double numerator = -f(LNext, y0Next,z0Next,y1Next);
